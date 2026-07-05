@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>토익 이수시험 연습</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #f0f2f5;
+    color: #222;
+    padding-bottom: 100px;
+  }
+  header {
+    background: #1a3c6e;
+    color: #fff;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.3rem; }
+  header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+  /* 파트 탭 */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    padding-bottom: 4px;
+  }
+  .tab {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #c5cdd8;
+    background: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab.active { background: #1a3c6e; color: #fff; border-color: #1a3c6e; }
+  .tab.disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* 오디오 */
+  .audio-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .audio-box .label { font-size: 0.85rem; color: #555; margin-bottom: 8px; }
+  .audio-box audio { width: 100%; }
+
+  /* 문제 카드 */
+  .question-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .q-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .q-num {
+    background: #1a3c6e;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .q-img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #e2e6ec;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .q-clip {
+    width: 100%;
+    height: 40px;
+    margin-bottom: 12px;
+  }
+
+  /* 선택지 */
+  .choices { display: flex; gap: 12px; justify-content: center; }
+  .choice {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid #b7c1cf;
+    background: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #445;
+    cursor: pointer;
+    transition: all 0.12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .choice:active { transform: scale(0.93); }
+  .choice.selected {
+    background: #1a3c6e;
+    border-color: #1a3c6e;
+    color: #fff;
+  }
+  /* 채점 후 */
+  .choice.correct {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+  }
+  .choice.wrong {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+  }
+  .result-mark { font-size: 0.95rem; font-weight: 700; margin-top: 10px; text-align: center; }
+  .result-mark.ok { color: #16a34a; }
+  .result-mark.no { color: #dc2626; }
+
+  /* 해설 */
+  .explain {
+    margin-top: 12px;
+    border-top: 1px dashed #d5dbe3;
+    padding-top: 12px;
+    display: none;
+  }
+  .explain.show { display: block; }
+  .explain-toggle {
+    display: none;
+    margin: 10px auto 0;
+    padding: 8px 16px;
+    border: 1px solid #b7c1cf;
+    border-radius: 8px;
+    background: #f6f8fa;
+    font-size: 0.85rem;
+    color: #334;
+    cursor: pointer;
+  }
+  .explain-toggle.show { display: block; }
+  .script-line {
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .script-line.answer-line { background: #ecfdf3; border: 1px solid #86efac; }
+  .script-line .en { color: #1f2937; }
+  .script-line .ko { color: #64748b; font-size: 0.84rem; }
+  .script-line .letter { font-weight: 800; margin-right: 4px; }
+  .script-line.answer-line .letter { color: #16a34a; }
+  .script-line.q-line { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .script-line.q-line .letter { color: #1d4ed8; }
+
+  /* 인쇄형 문제 텍스트 (Part 3~) */
+  .q-print { margin-bottom: 12px; }
+  .q-print .pq { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+  .q-print .pc { font-size: 0.9rem; color: #333; padding: 3px 0 3px 8px; line-height: 1.45; }
+  .group-card { background: #f3f6fb; border: 1px solid #d8e0ec; }
+
+  /* 하단 고정 버튼 */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #dde3ea;
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    max-width: 100%;
+    justify-content: center;
+  }
+  .btn {
+    flex: 1;
+    max-width: 340px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-check { background: #1a3c6e; color: #fff; }
+  .btn-check:disabled { background: #9aa7b8; cursor: not-allowed; }
+  .btn-retry { background: #e7ebf0; color: #333; display: none; }
+
+  /* 점수 */
+  .score-box {
+    display: none;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 2px solid #1a3c6e;
+  }
+  .score-box .big { font-size: 2rem; font-weight: 800; color: #1a3c6e; }
+  .score-box .sub { color: #666; margin-top: 4px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>토익 이수시험 연습</h1>
+  <p>문제를 풀고 정답을 확인하세요</p>
+</header>
+
+<div class="container">
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="score-box" id="scoreBox">
+    <div class="big" id="scoreText"></div>
+    <div class="sub" id="scoreSub"></div>
+  </div>
+
+  <div class="audio-box" id="audioBox">
+    <div class="label">🎧 전체 음원 (통으로 듣기) — 각 문제에도 개별 재생바가 있어요</div>
+    <audio controls id="audioPlayer" preload="metadata"></audio>
+  </div>
+
+  <div id="questions"></div>
+</div>
+
+<div class="bottom-bar">
+  <button class="btn btn-check" id="checkBtn" disabled>정답 확인</button>
+  <button class="btn btn-retry" id="retryBtn">다시 풀기</button>
+</div>
+
+<script>
+/* ============================================================
+   파트 데이터 — 새 파트가 생기면 여기에 추가하면 됩니다.
+   audio: mp3 경로 (RC 파트는 null)
+   questions: { num: 문제번호, img: 이미지 경로(없으면 null), answer: 정답 }
+   ============================================================ */
+const PARTS = {
+  "Part 1": {
+    audio: "Part1/750_P1_07.mp3",
+    questions: [
+      { num: 1, img: "Part1/1번.png", clip: "Part1/clips/1.mp3", answer: "B",
+        script: [
+          ["A", "A person is moving a ladder.", "한 사람이 사다리를 옮기고 있다."],
+          ["B", "A person is reaching for a container on a shelf.", "한 사람이 선반 위의 용기를 잡으려고 손을 뻗고 있다."],
+          ["C", "A person is carrying a toolbox.", "한 사람이 공구 상자를 나르고 있다."],
+          ["D", "A person is painting the walls of a utility room.", "한 사람이 다용도실 벽에 페인트칠을 하고 있다."]
+        ] },
+      { num: 2, img: "Part1/2번.jpg", clip: "Part1/clips/2.mp3", answer: "D",
+        script: [
+          ["A", "He's assembling a canopy on a lawn.", "남자가 잔디밭에서 캐노피(천막)를 조립하고 있다."],
+          ["B", "He's parking a vehicle behind a tent.", "남자가 텐트 뒤에 차량을 주차하고 있다."],
+          ["C", "He's hanging up some t-shirts.", "남자가 티셔츠들을 걸고 있다."],
+          ["D", "He's standing behind a merchandise display.", "남자가 상품 진열대 뒤에 서 있다."]
+        ] },
+      { num: 3, img: "Part1/3번.jpg", clip: "Part1/clips/3.mp3", answer: "D",
+        script: [
+          ["A", "A backpack is hanging on the back of a person's chair.", "배낭이 의자 등받이에 걸려 있다."],
+          ["B", "A worker is mopping a walkway.", "작업자가 통로를 대걸레로 닦고 있다."],
+          ["C", "Some people are boarding a plane.", "사람들이 비행기에 탑승하고 있다."],
+          ["D", "Some people are walking in a hallway.", "사람들이 복도를 걷고 있다."]
+        ] },
+      { num: 4, img: "Part1/4번.jpg", clip: "Part1/clips/4.mp3", answer: "C",
+        script: [
+          ["A", "A whiteboard has been propped against a doorway.", "화이트보드가 출입구에 기대어 세워져 있다."],
+          ["B", "Some chairs have been arranged in rows.", "의자들이 여러 줄로 배열되어 있다."],
+          ["C", "A large monitor has been mounted on a wall.", "대형 모니터가 벽에 설치되어 있다."],
+          ["D", "Some computer equipment has been stacked in a corner.", "컴퓨터 장비가 구석에 쌓여 있다."]
+        ] },
+      { num: 5, img: "Part1/5번.jpg", clip: "Part1/clips/5.mp3", answer: "D",
+        script: [
+          ["A", "One of the workers is directing traffic in the street.", "작업자 중 한 명이 길에서 교통정리를 하고 있다."],
+          ["B", "One of the workers is putting on snow boots.", "작업자 중 한 명이 스노부츠를 신고 있는 중이다."],
+          ["C", "One of the workers is picking up fallen tree branches.", "작업자 중 한 명이 떨어진 나뭇가지를 줍고 있다."],
+          ["D", "One of the workers is clearing snow from a roof.", "작업자 중 한 명이 지붕의 눈을 치우고 있다."]
+        ] },
+      { num: 6, img: "Part1/6번.jpg", clip: "Part1/clips/6.mp3", answer: "B",
+        script: [
+          ["A", "A wooden fence encloses a construction site.", "나무 울타리가 공사장을 둘러싸고 있다."],
+          ["B", "Building materials are piled up at a construction site.", "건축 자재들이 공사장에 쌓여 있다."],
+          ["C", "A construction vehicle is lifting bricks and planks of wood.", "공사 차량이 벽돌과 목재 판자를 들어 올리고 있다."],
+          ["D", "Some streets are closed because of construction.", "일부 도로가 공사 때문에 폐쇄되어 있다."]
+        ] }
+    ]
+  },
+  "Part 2": {
+    audio: "Part2/750_P2_33.mp3",
+    choices: ["A", "B", "C"],
+    questions: [
+      { num: 7, answer: "A",
+        qEn: "When would you like me to schedule your haircut?", qKo: "머리 자르는 예약을 언제로 잡아드릴까요?",
+        script: [
+          ["A", "I have time next Thursday afternoon.", "다음 주 목요일 오후에 시간이 있어요."],
+          ["B", "The salon on Marble Street.", "마블 스트리트에 있는 미용실이요."],
+          ["C", "It was my manager's.", "제 매니저의 것이었어요."]
+        ] },
+      { num: 8, answer: "B",
+        qEn: "Should I call the clients at noon or at 2 P.M.?", qKo: "고객들에게 정오에 전화할까요, 아니면 오후 2시에 할까요?",
+        script: [
+          ["A", "Lunch at Amy's Cafe.", "에이미즈 카페에서 점심이요."],
+          ["B", "I called them already.", "제가 이미 전화했어요."],
+          ["C", "$200.", "200달러요."]
+        ] },
+      { num: 9, answer: "C",
+        qEn: "Wouldn't you rather have a dark color for the carpet?", qKo: "카펫은 어두운 색이 더 낫지 않겠어요?",
+        script: [
+          ["A", "Yes, it's made of wood.", "네, 그건 나무로 만들어졌어요."],
+          ["B", "My car's right over there.", "제 차는 바로 저기 있어요."],
+          ["C", "That would look good in this room.", "그 색이 이 방에 잘 어울리겠네요."]
+        ] },
+      { num: 10, answer: "C",
+        qEn: "The air conditioner's not working very well, is it?", qKo: "에어컨이 잘 작동하지 않네요, 그렇죠?",
+        script: [
+          ["A", "I need to get shampoo as well.", "저도 샴푸를 사야 해요."],
+          ["B", "My car's in pretty good condition.", "제 차는 상태가 꽤 좋아요."],
+          ["C", "It is a bit warm in here.", "여기가 좀 덥긴 하네요."]
+        ] },
+      { num: 11, answer: "C",
+        qEn: "Why did you get here so early this morning?", qKo: "오늘 아침에 왜 이렇게 일찍 왔어요?",
+        script: [
+          ["A", "Not until the afternoon.", "오후나 되어야 해요."],
+          ["B", "Yes, I submitted it early.", "네, 일찍 제출했어요."],
+          ["C", "There was less traffic than usual.", "평소보다 차가 덜 막혔어요."]
+        ] },
+      { num: 12, answer: "B",
+        qEn: "You can go to the conference on Monday, can't you?", qKo: "월요일에 컨퍼런스에 갈 수 있죠, 그렇죠?",
+        script: [
+          ["A", "Every Tuesday morning.", "매주 화요일 아침이요."],
+          ["B", "No, I have a project deadline.", "아니요, 프로젝트 마감이 있어요."],
+          ["C", "On Platform 6.", "6번 승강장에서요."]
+        ] },
+      { num: 13, answer: "A",
+        qEn: "Can we listen to music at our desks while we're working?", qKo: "일하는 동안 자리에서 음악을 들어도 되나요?",
+        script: [
+          ["A", "As long as you wear headphones.", "헤드폰을 착용하기만 한다면요."],
+          ["B", "Yes, a new work desk.", "네, 새 업무용 책상이요."],
+          ["C", "No, we didn't hear it.", "아니요, 우리는 못 들었어요."]
+        ] },
+      { num: 14, answer: "C",
+        qEn: "Where can I buy fresh flowers this time of year?", qKo: "이맘때 신선한 꽃은 어디서 살 수 있나요?",
+        script: [
+          ["A", "10:30 this morning.", "오늘 아침 10시 30분이요."],
+          ["B", "Yes, in July and August.", "네, 7월과 8월에요."],
+          ["C", "Try the florist on North Avenue.", "노스 애비뉴에 있는 꽃집에 가보세요."]
+        ] },
+      { num: 15, answer: "B",
+        qEn: "Who's joining the team for the sales trip?", qKo: "영업 출장에 누가 팀에 합류하나요?",
+        script: [
+          ["A", "No, that's not what I meant.", "아니요, 제 말은 그게 아니에요."],
+          ["B", "Malik has the list.", "말릭이 명단을 갖고 있어요."],
+          ["C", "No, I'd like to buy three tickets.", "아니요, 표 세 장을 사고 싶어요."]
+        ] },
+      { num: 16, answer: "B",
+        qEn: "I just heard a news report on the radio about seasonal farm work.", qKo: "방금 라디오에서 계절 농장 일에 관한 뉴스를 들었어요.",
+        script: [
+          ["A", "Some homegrown vegetables.", "집에서 기른 채소들이요."],
+          ["B", "Which station was it on?", "어느 방송국에서 나왔어요?"],
+          ["C", "For a music producer.", "음악 프로듀서를 위해서요."]
+        ] },
+      { num: 17, answer: "C",
+        qEn: "What time do you want to conduct the inspection?", qKo: "몇 시에 점검을 진행하고 싶으세요?",
+        script: [
+          ["A", "Because I forgot my bag.", "가방을 깜빡해서요."],
+          ["B", "Let me drive instead.", "대신 제가 운전할게요."],
+          ["C", "Well, we'll be in a training session all morning.", "음, 우리는 오전 내내 교육에 참석할 거예요."]
+        ] },
+      { num: 18, answer: "B",
+        qEn: "Doesn't the cost of the movie ticket include a beverage?", qKo: "영화 티켓 가격에 음료가 포함되어 있지 않나요?",
+        script: [
+          ["A", "No, the entrance is around the corner.", "아니요, 입구는 모퉁이를 돌면 있어요."],
+          ["B", "Only on weekdays.", "평일에만요."],
+          ["C", "You can find one in the brochure.", "안내 책자에서 찾을 수 있어요."]
+        ] },
+      { num: 19, answer: "B",
+        qEn: "How often do you have to replace your water heater?", qKo: "온수기를 얼마나 자주 교체해야 하나요?",
+        script: [
+          ["A", "Let's go there for lunch.", "점심 먹으러 거기 가요."],
+          ["B", "My landlord takes care of maintenance.", "집주인이 유지보수를 담당해요."],
+          ["C", "Okay, I'll call to cancel my appointment.", "알겠어요, 전화해서 예약을 취소할게요."]
+        ] },
+      { num: 20, answer: "B",
+        qEn: "On which day will the store's return policy change?", qKo: "매장의 반품 정책이 어느 날 바뀌나요?",
+        script: [
+          ["A", "Here's your change and receipt.", "여기 거스름돈과 영수증이요."],
+          ["B", "The manager has that information.", "매니저가 그 정보를 알고 있어요."],
+          ["C", "Oh, I can work that day.", "오, 저 그날 일할 수 있어요."]
+        ] },
+      { num: 21, answer: "B",
+        qEn: "How are you getting to the department's social event tonight?", qKo: "오늘 밤 부서 친목 행사에 어떻게 갈 거예요?",
+        script: [
+          ["A", "I just bought one.", "방금 하나 샀어요."],
+          ["B", "I'll be working until late this evening on an important project.", "중요한 프로젝트 때문에 오늘 저녁 늦게까지 일할 거예요."],
+          ["C", "We brought a copy of the business plan.", "사업 계획서 사본을 가져왔어요."]
+        ] },
+      { num: 22, answer: "A",
+        qEn: "When will the refrigeration unit be repaired?", qKo: "냉장 설비는 언제 수리되나요?",
+        script: [
+          ["A", "On Wednesday afternoon.", "수요일 오후에요."],
+          ["B", "The weather will be warmer tomorrow.", "내일은 날씨가 더 따뜻할 거예요."],
+          ["C", "Yes, she won last night.", "네, 그녀가 어젯밤에 이겼어요."]
+        ] },
+      { num: 23, answer: "B",
+        qEn: "Marcella hasn't heard back from the Canadian distributors, has she?", qKo: "마르셀라가 캐나다 유통업체에서 아직 답을 못 받았죠, 그렇죠?",
+        script: [
+          ["A", "An equal distribution of funds.", "자금의 균등한 분배요."],
+          ["B", "I don't think so, no.", "아닌 것 같아요, 네 (못 받았어요)."],
+          ["C", "Can you help me move those boxes?", "저 상자들 옮기는 것 좀 도와줄래요?"]
+        ] },
+      { num: 24, answer: "C",
+        qEn: "Let's try to get to the conference early tomorrow.", qKo: "내일 컨퍼런스에 일찍 도착하도록 해요.",
+        script: [
+          ["A", "Because it was removed from the agenda.", "그것이 안건에서 제외됐기 때문이에요."],
+          ["B", "They got a free trial for that product.", "그들이 그 제품 무료 체험판을 받았어요."],
+          ["C", "It would be nice to avoid long lines of attendees.", "참석자들의 긴 줄을 피할 수 있으면 좋겠네요."]
+        ] },
+      { num: 25, answer: "A",
+        qEn: "Who does the quality control tests on our company's products?", qKo: "우리 회사 제품의 품질 관리 테스트는 누가 하나요?",
+        script: [
+          ["A", "Several people do them.", "여러 사람이 해요."],
+          ["B", "Only the highest quality materials.", "최고급 자재만요."],
+          ["C", "Before Mr. Keith arrived.", "키스 씨가 도착하기 전에요."]
+        ] },
+      { num: 26, answer: "C",
+        qEn: "Can you give me an estimate of how long the flight will be?", qKo: "비행시간이 얼마나 될지 대략 알려줄 수 있나요?",
+        script: [
+          ["A", "At the baggage claim.", "수하물 찾는 곳에서요."],
+          ["B", "That's a good price.", "좋은 가격이네요."],
+          ["C", "It's about five hours.", "약 5시간이에요."]
+        ] },
+      { num: 27, answer: "A",
+        qEn: "This bus line will be adding destinations next month.", qKo: "이 버스 노선은 다음 달에 목적지가 추가될 거예요.",
+        script: [
+          ["A", "I'd love to use public transportation to get to work.", "출근할 때 대중교통을 이용하고 싶어요."],
+          ["B", "An afternoon flight would be more convenient.", "오후 비행기가 더 편할 거예요."],
+          ["C", "A seat next to the window.", "창가 자리요."]
+        ] },
+      { num: 28, answer: "C",
+        qEn: "Do you know how many guests are expected on Thursday?", qKo: "목요일에 손님이 몇 명이나 올지 아세요?",
+        script: [
+          ["A", "It's on the second floor.", "2층에 있어요."],
+          ["B", "A weekly event.", "주간 행사요."],
+          ["C", "Definitely more than a hundred.", "확실히 100명은 넘을 거예요."]
+        ] },
+      { num: 29, answer: "C",
+        qEn: "Are you attending the Leadership Skills Workshop today?", qKo: "오늘 리더십 스킬 워크숍에 참석하세요?",
+        script: [
+          ["A", "I think she would be a great team leader.", "그녀가 훌륭한 팀장이 될 것 같아요."],
+          ["B", "25 participants so far.", "지금까지 참가자 25명이요."],
+          ["C", "No, I have a conflict at that time.", "아니요, 그 시간에 다른 일정이 있어요."]
+        ] },
+      { num: 30, answer: "A",
+        qEn: "Why don't we set up a picnic table next to that fence?", qKo: "저 울타리 옆에 피크닉 테이블을 설치하는 게 어때요?",
+        script: [
+          ["A", "There's more shade under the trees.", "나무 아래가 그늘이 더 많아요."],
+          ["B", "Here's a lock for your suitcase.", "여기 여행 가방용 자물쇠요."],
+          ["C", "A couple of picnic baskets.", "피크닉 바구니 두어 개요."]
+        ] },
+      { num: 31, answer: "A",
+        qEn: "What do you think about buying another printer?", qKo: "프린터를 한 대 더 사는 것에 대해 어떻게 생각해요?",
+        script: [
+          ["A", "Why don't we wait until next quarter?", "다음 분기까지 기다리는 게 어때요?"],
+          ["B", "A special type of paper.", "특수한 종류의 종이요."],
+          ["C", "I printed plenty of copies.", "제가 복사본을 많이 출력했어요."]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: "Part2/clips/" + q.num + ".mp3" }))
+  },
+  "Part 3-1": {
+    audio: "Part3/Part3-1/750_P3_10.mp3",
+    groups: [
+      { nums: [1, 3], clip: "Part3/Part3-1/clips/g1.mp3", conv: [
+        ["Tim, I'm looking for a new fitness center to join. The one I currently go to is convenient for me, but they just sent out an e-mail saying they're closing down in July.", "팀, 제가 새로 가입할 피트니스 센터를 찾고 있는데요. 지금 가는 곳이 편리하긴 한데, 7월에 문을 닫는다는 이메일을 보냈더라고요."],
+        ["Why don't you join mine? The monthly fee is reasonable, and they just installed some new exercise machines. Personally, I just go there to swim. I usually go first thing in the morning because the pool's practically empty then.", "제가 다니는 곳에 가입하지 그래요? 월 이용료도 적당하고 새 운동기구 몇 대를 이제 막 설치했어요. 개인적으로 저는 수영을 하러 가요. 보통 아침에 제일 먼저 가죠. 그때는 수영장이 거의 비어 있거든요."],
+        ["Oh, that's good to know. I prefer going to the gym when it's less crowded too. Can I try out the equipment before signing up for a membership?", "아, 좋은 정보군요. 저도 덜 붐빌 때 체육관에 가는 걸 좋아해요. 회원 등록을 하기 전에 장비를 이용해 볼 수 있나요?"],
+        ["Yes, they offer one-day trials. And if you decide to sign up, mention my name, and you'll get a discount on the first month.", "네, 하루 시범 이용권을 제공해요. 등록하기로 결정하시면 제 이름을 대세요. 그럼 첫 번째 달은 할인을 받게 돼요."]
+      ] },
+      { nums: [4, 6], clip: "Part3/Part3-1/clips/g2.mp3", conv: [
+        ["Hi, Sergei. This is Jessica Murray from Royer's Kebabs. Thanks for signing a contract with us. We enjoy working with social media influencers like yourself.", "안녕하세요, 세르게이. 로이어스 케밥의 제시카 머레이예요. 계약해 주셔서 감사해요. 당신 같은 소셜 미디어 인플루언서와 일하게 되어 기뻐요."],
+        ["I'm delighted to represent Royer's. Your kebabs are my favorite meal.", "로이어스를 대표하게 되어 기뻐요. 로이어스 케밥은 제가 제일 좋아하는 음식이에요."],
+        ["Well, we're counting on you to share that enthusiasm on your social media sites. As your contract states, you'll film yourself enjoying a Royer's kebab and post it to various sites.", "그 열정을 소셜 미디어에 공유해 주시길 기대해요. 계약서에 명시된 대로, 케밥을 맛있게 드시는 모습을 촬영해서 여러 사이트에 올리시면 돼요."],
+        ["Yes, I'll post the video next week.", "네, 다음 주에 영상을 올릴게요."],
+        ["Great. I just wanted to remind you to be sure the logo on our product packaging is clearly visible while you're filming.", "좋아요. 촬영하실 때 제품 포장의 로고가 잘 보이게 해달라는 걸 다시 알려드리고 싶었어요."]
+      ] },
+      { nums: [7, 9], clip: "Part3/Part3-1/clips/g3.mp3", conv: [
+        ["On today's broadcast, we talk to Professor Mona Haddad, who just completed her research on the space lab. Welcome, Professor Haddad. How exciting to conduct research in space. Please tell us about your research on the space lab.", "오늘 방송에서는 우주 실험실에서 연구를 막 마친 모나 하다드 교수님과 이야기 나눕니다. 어서 오세요, 교수님. 우주에서 연구라니 정말 흥미롭네요. 우주 실험실에서의 연구에 대해 말씀해 주세요."],
+        ["Sure. My background is in biology, and my focus was on plants and how low gravity can slow the ripening of fruits and vegetables. This study has many applications in space and on Earth.", "네. 제 전공은 생물학이고, 식물, 그리고 저중력이 과일과 채소의 숙성을 어떻게 늦출 수 있는지에 초점을 맞췄어요. 이 연구는 우주와 지구에서 다양하게 응용될 수 있어요."],
+        ["That's so interesting, and we'll definitely return to that. But first, we have a surprise. A colleague of yours from the space lab has just called in and is waiting on the line to talk with you. Let's take that call now.", "정말 흥미롭네요. 그 얘기는 꼭 다시 하기로 하고요. 먼저 깜짝 소식이 있어요. 우주 실험실 동료 한 분이 방금 전화 연결되어 통화를 기다리고 계세요. 지금 그 전화를 받아보죠."]
+      ] },
+      { nums: [10, 12], clip: "Part3/Part3-1/clips/g4.mp3", conv: [
+        ["Chef Livingstone, I'm very glad you chose to accept our offer. The restaurant is lucky to have a chef of your reputation.", "리빙스턴 셰프님, 저희 제안을 수락해 주셔서 정말 기뻐요. 셰프님처럼 명성 있는 분을 모시게 되어 레스토랑으로선 행운이에요."],
+        ["Well, I'm looking forward to working here.", "저도 여기서 일하게 되어 기대돼요."],
+        ["We're especially pleased that you'll be creating new desserts for our menu. Offering new menu items is a top priority so we can attract new customers.", "특히 메뉴에 새 디저트를 만들어 주신다니 기뻐요. 신규 고객 유치를 위해 새 메뉴 제공이 최우선 과제거든요."],
+        ["Right. I have lots of good recipes that I'll be trying out.", "맞아요. 시도해 볼 좋은 레시피가 많아요."],
+        ["Great. And please don't hesitate to let me know if you need any special equipment we don't already have.", "좋아요. 저희에게 없는 특수 장비가 필요하시면 언제든 말씀해 주세요."]
+      ] },
+      { nums: [13, 15], clip: "Part3/Part3-1/clips/g5.mp3", conv: [
+        ["Hi, Hend and Kento. We might have a problem getting to the client meeting this afternoon. According to the app on my mobile phone, there's heavy traffic because of construction work.", "안녕하세요, 헨드, 켄토. 오늘 오후 고객 미팅에 가는 데 문제가 생길지도 몰라요. 제 휴대폰 앱에 따르면 공사 때문에 교통이 많이 막힌대요."],
+        ["This is the client in Hamptonville who's interested in our drone equipment, right? We don't want to be late to that.", "우리 드론 장비에 관심 있는 햄프턴빌 고객 맞죠? 거기 늦으면 안 되는데요."],
+        ["Right. We can't be late. I want to make sure I have enough time to demonstrate the drone prototypes for everyone.", "맞아요, 늦으면 안 돼요. 모두에게 드론 시제품을 시연할 시간이 충분했으면 해요."],
+        ["Don't worry. We can take the Carver Bridge instead. It would add only another 15 minutes to our trip.", "걱정 마세요. 대신 카버 브리지로 가면 돼요. 이동 시간이 15분만 더 늘어날 거예요."],
+        ["Okay. That route looks good on the app. Let's take that.", "좋아요. 앱에서 보니 그 경로 괜찮네요. 그렇게 가요."]
+      ] },
+      { nums: [16, 18], clip: "Part3/Part3-1/clips/g6.mp3", conv: [
+        ["You've reached the Parks Department of Monroe City. How can I help you?", "먼로 시 공원관리과입니다. 무엇을 도와드릴까요?"],
+        ["Hello. I moved to Monroe last month and I'm looking for volunteer opportunities. I thought that might help me get to know the area. Do you need any volunteers?", "안녕하세요. 지난달에 먼로로 이사 왔는데 자원봉사 기회를 찾고 있어요. 지역을 알아가는 데 도움이 될 것 같아서요. 자원봉사자가 필요하신가요?"],
+        ["We do. In fact, right now we're conducting a census of native birds in our local parks. We need volunteers to count them so we have an idea of how many there are. Would you like to help with that?", "네, 필요해요. 실은 지금 지역 공원의 토착 조류 개체 수 조사를 하고 있어요. 새가 얼마나 있는지 파악할 수 있도록 세어 줄 자원봉사자가 필요해요. 도와주시겠어요?"],
+        ["Yes. My only concern is that I've never done anything like this before.", "네. 다만 걱정되는 건 제가 이런 일을 해본 적이 없다는 거예요."],
+        ["Don't worry. We'll pair you with a park ranger who'll show you how to identify the birds and count them.", "걱정 마세요. 새를 식별하고 세는 법을 알려줄 공원 관리인과 짝지어 드릴게요."]
+      ] },
+      { nums: [19, 21], clip: "Part3/Part3-1/clips/g7.mp3", conv: [
+        ["John, it seems like the launch of our newspaper's new website has been a great success. In just one week, the site has already gotten very positive feedback from readers.", "존, 우리 신문사의 새 웹사이트 론칭이 대성공인 것 같아요. 일주일 만에 벌써 독자들에게서 아주 긍정적인 반응을 받았어요."],
+        ["There do seem to be some issues with the mobile version of the site, though. People who visit our website on their mobile phones are reporting that headlines and text aren't displayed correctly. Lines can be completely cut off.", "그런데 사이트 모바일 버전에 문제가 좀 있는 것 같아요. 휴대폰으로 접속하는 사람들이 헤드라인과 본문이 제대로 표시되지 않는다고 해요. 줄이 완전히 잘리기도 하고요."],
+        ["Oh, I wasn't aware of that problem. We'll need to address that right away. There's definitely a growing trend of reading news websites on a phone instead of on a computer, so this problem could be affecting a lot of readers.", "오, 그 문제는 몰랐네요. 바로 해결해야겠어요. 컴퓨터 대신 휴대폰으로 뉴스 사이트를 보는 추세가 확실히 늘고 있어서, 이 문제가 많은 독자에게 영향을 줄 수 있어요."]
+      ] },
+      { nums: [22, 24], clip: "Part3/Part3-1/clips/g8.mp3", conv: [
+        ["Hi, Andrew and Lola. So I hear you have doubts about the new marketing strategy that personalizes commercials in our streaming service.", "안녕하세요, 앤드루, 롤라. 우리 스트리밍 서비스의 광고를 개인 맞춤화하는 새 마케팅 전략에 대해 의구심이 있다고 들었어요."],
+        ["Yes, I used to subscribe to a music streaming service with the same strategy. I kept hearing the same five commercials over and over. It was so annoying.", "네, 저는 같은 전략을 쓰는 음악 스트리밍 서비스를 구독한 적이 있는데요. 같은 광고 5개를 계속 반복해서 들었어요. 정말 짜증 났어요."],
+        ["I agree, Andrew. In fact, I just read an article that explained how personalization can actually reduce subscriptions. You should read it.", "동의해요, 앤드루. 실은 개인 맞춤화가 오히려 구독을 줄일 수 있다는 내용을 설명한 기사를 방금 읽었어요. 한번 읽어보세요."],
+        ["Thanks, Lola. Can you send it to me?", "고마워요, 롤라. 그거 보내줄 수 있어요?"]
+      ] }
+    ],
+    printed: true,
+    questions: [
+      { num: 1,  answer: "C", qEn: "What problem does the woman mention?", qKo: "여자는 어떤 문제를 언급하는가?",
+        script: [
+          ["A", "Her schedule is very busy.", "그녀의 일정이 매우 바쁘다."],
+          ["B", "A fee has increased.", "요금이 인상되었다."],
+          ["C", "A fitness center is closing.", "피트니스 센터가 문을 닫는다."],
+          ["D", "A building is under construction.", "건물이 공사 중이다."]
+        ] },
+      { num: 2,  answer: "D", qEn: "What does the man say about the swimming pool?", qKo: "남자는 수영장에 대해 뭐라고 말하는가?",
+        script: [
+          ["A", "It will not be open next month.", "다음 달에 문을 열지 않을 것이다."],
+          ["B", "It has swim instructors available.", "수영 강사가 있다."],
+          ["C", "Its hours were recently extended.", "최근 운영 시간이 연장되었다."],
+          ["D", "It is not used a lot in the morning.", "아침에는 이용하는 사람이 많지 않다."]
+        ] },
+      { num: 3,  answer: "B", qEn: "How can the woman obtain a discount?", qKo: "여자는 어떻게 할인을 받을 수 있는가?",
+        script: [
+          ["A", "By presenting a coupon", "쿠폰을 제시해서"],
+          ["B", "By providing a friend's name", "친구의 이름을 대서"],
+          ["C", "By going to a facility on weekdays only", "평일에만 시설에 가서"],
+          ["D", "By paying for several months in advance", "몇 달치를 선불로 내서"]
+        ] },
+      { num: 4,  answer: "D", qEn: "What has the man been contracted to do?", qKo: "남자는 무엇을 하기로 계약했는가?",
+        script: [
+          ["A", "Build a Web site", "웹사이트 제작"],
+          ["B", "Create a restaurant menu", "레스토랑 메뉴 만들기"],
+          ["C", "Design product packaging", "제품 포장 디자인"],
+          ["D", "Advertise a business", "사업체 광고"]
+        ] },
+      { num: 5,  answer: "D", qEn: "What will happen next week?", qKo: "다음 주에 무슨 일이 있을 것인가?",
+        script: [
+          ["A", "A business will open a new location.", "사업체가 새 지점을 연다."],
+          ["B", "A receipt will be sent.", "영수증이 발송된다."],
+          ["C", "An episode will have a guest speaker.", "에피소드에 초대 연사가 나온다."],
+          ["D", "A video will be posted online.", "영상이 온라인에 게시된다."]
+        ] },
+      { num: 6,  answer: "B", qEn: "What does the woman remind the man to do?", qKo: "여자는 남자에게 무엇을 하라고 상기시키는가?",
+        script: [
+          ["A", "Call her with an update", "새로운 소식이 있으면 전화하기"],
+          ["B", "Make sure a logo is easy to see", "로고가 잘 보이게 하기"],
+          ["C", "Read some market research", "시장 조사 자료 읽기"],
+          ["D", "Use a specific color palette", "특정 색상 팔레트 사용하기"]
+        ] },
+      { num: 7,  answer: "B", qEn: "What did the woman recently do?", qKo: "여자는 최근에 무엇을 했는가?",
+        script: [
+          ["A", "She published an article.", "기사를 발표했다."],
+          ["B", "She completed a research project.", "연구 프로젝트를 완료했다."],
+          ["C", "She appeared in a documentary film.", "다큐멘터리 영화에 출연했다."],
+          ["D", "She returned from a lecture tour.", "강연 투어에서 돌아왔다."]
+        ] },
+      { num: 8,  answer: "C", qEn: "What field does the woman work in?", qKo: "여자는 어떤 분야에서 일하는가?",
+        script: [
+          ["A", "Robotics", "로봇 공학"],
+          ["B", "Mechanical engineering", "기계 공학"],
+          ["C", "Plant biology", "식물 생물학"],
+          ["D", "Software development", "소프트웨어 개발"]
+        ] },
+      { num: 9,  answer: "A", qEn: "What will the woman do next?", qKo: "여자는 다음에 무엇을 할 것인가?",
+        script: [
+          ["A", "Talk to a colleague", "동료와 이야기하기"],
+          ["B", "Accept an award", "상 받기"],
+          ["C", "Discuss a book", "책에 관해 논의하기"],
+          ["D", "Explain a future project", "향후 프로젝트 설명하기"]
+        ] },
+      { num: 10, answer: "A", qEn: "Who is the woman?", qKo: "여자는 누구인가?",
+        script: [
+          ["A", "A chef", "셰프(요리사)"],
+          ["B", "A corporate executive", "기업 임원"],
+          ["C", "A salesperson", "판매원"],
+          ["D", "An event organizer", "행사 기획자"]
+        ] },
+      { num: 11, answer: "C", qEn: "How does the man hope to attract more customers?", qKo: "남자는 어떻게 더 많은 고객을 유치하기를 바라는가?",
+        script: [
+          ["A", "By improving some packaging", "포장을 개선해서"],
+          ["B", "By lowering prices", "가격을 낮춰서"],
+          ["C", "By offering new items", "새로운 메뉴(품목)를 제공해서"],
+          ["D", "By renovating a location", "매장을 개조해서"]
+        ] },
+      { num: 12, answer: "D", qEn: "What does the man say he can do?", qKo: "남자는 무엇을 해줄 수 있다고 말하는가?",
+        script: [
+          ["A", "Hire additional staff", "추가 직원 고용"],
+          ["B", "Redesign some uniforms", "유니폼 재디자인"],
+          ["C", "Provide employee discounts", "직원 할인 제공"],
+          ["D", "Order specialized equipment", "특수 장비 주문"]
+        ] },
+      { num: 13, answer: "B", qEn: "What is causing a problem?", qKo: "무엇이 문제를 일으키고 있는가?",
+        script: [
+          ["A", "Bad weather", "악천후"],
+          ["B", "Heavy traffic", "교통 혼잡"],
+          ["C", "A train cancellation", "열차 운행 취소"],
+          ["D", "A broken-down vehicle", "고장 난 차량"]
+        ] },
+      { num: 14, answer: "C", qEn: "Why is the man worried?", qKo: "남자는 왜 걱정하는가?",
+        script: [
+          ["A", "He has paid for some tickets already.", "이미 표값을 지불했다."],
+          ["B", "He needs to go to another appointment.", "다른 약속에 가야 한다."],
+          ["C", "He wants enough time to conduct a demonstration.", "시연할 시간이 충분하길 원한다."],
+          ["D", "He will not have Internet access.", "인터넷을 사용할 수 없을 것이다."]
+        ] },
+      { num: 15, answer: "A", qEn: "What do the women agree about?", qKo: "여자들은 무엇에 동의하는가?",
+        script: [
+          ["A", "Taking an alternate route", "다른 경로로 가는 것"],
+          ["B", "Training an assistant", "조수를 교육하는 것"],
+          ["C", "Sending a presentation by e-mail", "이메일로 발표 자료를 보내는 것"],
+          ["D", "Consulting a manual", "설명서를 참고하는 것"]
+        ] },
+      { num: 16, answer: "A", qEn: "What does the man say he did last month?", qKo: "남자는 지난달에 무엇을 했다고 말하는가?",
+        script: [
+          ["A", "He moved to a new town.", "새로운 도시로 이사했다."],
+          ["B", "He started a new job.", "새 일을 시작했다."],
+          ["C", "He took a science class.", "과학 수업을 들었다."],
+          ["D", "He visited a park.", "공원을 방문했다."]
+        ] },
+      { num: 17, answer: "B", qEn: "What task does the woman ask the man to help with?", qKo: "여자는 남자에게 어떤 일을 도와달라고 하는가?",
+        script: [
+          ["A", "Leading hikes", "하이킹 인솔"],
+          ["B", "Counting birds", "새 개체 수 세기"],
+          ["C", "Planting trees", "나무 심기"],
+          ["D", "Cleaning parks", "공원 청소"]
+        ] },
+      { num: 18, answer: "B", qEn: "What is the man concerned about?", qKo: "남자는 무엇을 걱정하는가?",
+        script: [
+          ["A", "His busy schedule", "바쁜 일정"],
+          ["B", "His lack of experience", "경험 부족"],
+          ["C", "The distance to a work site", "작업 장소까지의 거리"],
+          ["D", "The cost to participate", "참가 비용"]
+        ] },
+      { num: 19, answer: "C", qEn: "According to the woman, what did the company recently do?", qKo: "여자에 따르면 회사는 최근 무엇을 했는가?",
+        script: [
+          ["A", "Announce a merger", "합병 발표"],
+          ["B", "Hire an editor", "편집자 채용"],
+          ["C", "Launch a Web site", "웹사이트 개설"],
+          ["D", "Host a workshop", "워크숍 개최"]
+        ] },
+      { num: 20, answer: "A", qEn: "What problem does the man mention?", qKo: "남자는 어떤 문제를 언급하는가?",
+        script: [
+          ["A", "Content is not displayed correctly.", "콘텐츠가 제대로 표시되지 않는다."],
+          ["B", "A deadline was missed.", "마감일을 놓쳤다."],
+          ["C", "Sales are lower than expected.", "매출이 예상보다 낮다."],
+          ["D", "Equipment is outdated.", "장비가 구식이다."]
+        ] },
+      { num: 21, answer: "D", qEn: "What does the woman say is a growing trend?", qKo: "여자는 무엇이 증가하는 추세라고 말하는가?",
+        script: [
+          ["A", "Listening to audiobooks", "오디오북 듣기"],
+          ["B", "Holding training sessions online", "온라인 교육 진행"],
+          ["C", "Signing contracts electronically", "전자 계약 체결"],
+          ["D", "Reading news on mobile devices", "모바일 기기로 뉴스 읽기"]
+        ] },
+      { num: 22, answer: "D", qEn: "What are the speakers discussing?", qKo: "화자들은 무엇에 대해 논의하고 있는가?",
+        script: [
+          ["A", "A software training session", "소프트웨어 교육"],
+          ["B", "An investment opportunity", "투자 기회"],
+          ["C", "A recording session", "녹음 세션"],
+          ["D", "A marketing plan", "마케팅 계획"]
+        ] },
+      { num: 23, answer: "B", qEn: "What did Andrew think was problematic?", qKo: "앤드루는 무엇이 문제라고 생각했는가?",
+        script: [
+          ["A", "The lack of technical support", "기술 지원 부족"],
+          ["B", "The excessive amount of repetition", "과도한 반복"],
+          ["C", "The complicated registration process", "복잡한 등록 절차"],
+          ["D", "The high subscription fee", "높은 구독료"]
+        ] },
+      { num: 24, answer: "A", qEn: "What does Lola suggest Andrew do?", qKo: "롤라는 앤드루에게 무엇을 하라고 제안하는가?",
+        script: [
+          ["A", "Read a magazine article", "잡지 기사 읽기"],
+          ["B", "Test some equipment", "장비 테스트하기"],
+          ["C", "Review an official document", "공식 문서 검토하기"],
+          ["D", "Distribute customer surveys", "고객 설문지 배포하기"]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  },
+  "Part 3-2": {
+    audio: "Part3/Part3-2/750_P3_20.mp3",
+    printed: true,
+    groups: [
+      { nums: [1, 3], clip: "Part3/Part3-2/clips/g1.mp3", conv: [
+        ["Thanks for meeting with me today, Ms. Salazar. As I mentioned in my call, the roof of my computer store leaks whenever it rains.", "오늘 만나 주셔서 감사합니다, 살라자르 씨. 전화로 말씀드렸듯이, 제 컴퓨터 매장 지붕이 비만 오면 물이 새요."],
+        ["My company should be able to fix the roof. We just need to replace the area where this occurs. The low-slope roof on this building makes leakage more likely.", "저희 회사에서 지붕을 고칠 수 있을 거예요. 누수가 발생하는 부분만 교체하면 돼요. 이 건물처럼 경사가 낮은 지붕은 누수가 생기기 더 쉬워요."],
+        ["Oh, I didn't know that. Will it take long to fix? The rainy season is coming soon.", "아, 몰랐네요. 고치는 데 오래 걸릴까요? 곧 장마철이 다가와서요."],
+        ["We have most of the supplies in our warehouse.", "필요한 자재 대부분이 저희 창고에 있어요."],
+        ["Great. So what are the next steps?", "잘됐네요. 그럼 다음 단계는 뭔가요?"],
+        ["I'll need to take some pictures. My camera's in the truck, though.", "사진을 좀 찍어야 해요. 그런데 카메라가 트럭에 있네요."]
+      ] },
+      { nums: [4, 6], clip: "Part3/Part3-2/clips/g2.mp3", conv: [
+        ["Hello. Can I mail a package to Portugal here?", "안녕하세요. 여기서 포르투갈로 소포를 보낼 수 있나요?"],
+        ["I'm sorry, but this counter is for domestic services only.", "죄송하지만 이 창구는 국내 업무 전용이에요."],
+        ["Oh, okay. So I should go...", "아, 네. 그럼 어디로 가야..."],
+        ["I can help you over here. ... Would you like to send it by priority mail or regular mail? Priority mail takes less time, but it costs more.", "이쪽에서 도와드릴게요. ... 빠른우편으로 보내시겠어요, 일반우편으로 보내시겠어요? 빠른우편이 시간은 덜 걸리지만 비용이 더 들어요."],
+        ["I'd prefer priority mail since I want it to get to Lisbon by Friday. Is there a free tracking service so I can track my package in the delivery process?", "금요일까지 리스본에 도착해야 해서 빠른우편이 좋겠어요. 배송 과정에서 소포를 추적할 수 있는 무료 추적 서비스가 있나요?"],
+        ["Unfortunately, no. We do, however, offer package delivery notification for an additional fee.", "아쉽지만 없어요. 대신 추가 요금을 내시면 배송 알림 서비스를 제공해요."]
+      ] },
+      { nums: [7, 9], clip: "Part3/Part3-2/clips/g3.mp3", conv: [
+        ["Hi, Mr. Bora. Sorry to call you so late in the day, but the engineer on the second shift has reported a machinery issue. One of the centrifuges is not spinning correctly, and a part needs to be replaced.", "안녕하세요, 보라 씨. 늦은 시간에 전화드려 죄송한데, 2교대 엔지니어가 기계 문제를 보고했어요. 원심분리기 하나가 제대로 회전하지 않아서 부품을 교체해야 해요."],
+        ["I see. The quickest solution would be to have our machinist make the part. Have you called Chen?", "그렇군요. 가장 빠른 해결책은 우리 기계공에게 부품을 만들게 하는 거예요. 첸에게 전화했나요?"],
+        ["I wanted to check with you first. If Chen comes in, he'll be working overtime. Do I have your approval for overtime pay?", "먼저 확인받고 싶었어요. 첸이 나오면 초과 근무를 하게 되는데요. 초과 근무 수당을 승인해 주시는 건가요?"],
+        ["Well, we have to keep the equipment running.", "음, 장비는 계속 돌아가야 하니까요."],
+        ["I'll contact Chen right away.", "바로 첸에게 연락할게요."]
+      ] },
+      { nums: [10, 12], clip: "Part3/Part3-2/clips/g4.mp3", conv: [
+        ["Hector, I'm supposed to prepare a report on our factory inventory, but I'm having trouble with this new spreadsheet program.", "헥터, 공장 재고 보고서를 준비해야 하는데, 이 새 스프레드시트 프로그램이 어려워서 애를 먹고 있어요."],
+        ["Have you checked out the company website? There's an online tutorial there that's good.", "회사 웹사이트 확인해 봤어요? 거기 괜찮은 온라인 튜토리얼이 있어요."],
+        ["I've been through the tutorial. It shows you how to do common spreadsheet functions, but it wasn't helpful for the advanced reports. You've done those, haven't you?", "튜토리얼은 다 봤어요. 일반적인 스프레드시트 기능은 알려주는데, 고급 보고서에는 도움이 안 됐어요. 그런 보고서 해보셨죠?"],
+        ["Yes, but I have a client meeting this morning.", "네, 그런데 오늘 오전에 고객 미팅이 있어요."]
+      ] },
+      { nums: [13, 15], clip: "Part3/Part3-2/clips/g5.mp3", img: "Part3/Part3-2/13-15번 문제 이미지.jpg", conv: [
+        ["Hi, Sakura. Can you help me for a minute? A customer just pulled up with his truck, and his invoice shows that he ordered one roll of six-foot fencing. I've looked around the stockyard, and I don't see that anywhere.", "안녕하세요, 사쿠라. 잠깐 도와줄 수 있어요? 방금 고객이 트럭을 몰고 왔는데, 송장을 보니 6피트 울타리 한 롤을 주문했더라고요. 자재 야적장을 둘러봤는데 어디에도 안 보여요."],
+        ["That product's actually on a very high shelf. You should use the forklift to reach it, but I think Alberto is using that equipment right now.", "그 제품은 사실 아주 높은 선반에 있어요. 지게차를 사용해야 닿는데, 지금 알베르토가 그 장비를 쓰고 있는 것 같아요."],
+        ["Thanks. I'll go and let the customer know it'll be a few more minutes before I get the fencing.", "고마워요. 고객에게 울타리를 가져오는 데 몇 분 더 걸릴 거라고 알리러 가야겠어요."]
+      ] },
+      { nums: [16, 18], clip: "Part3/Part3-2/clips/g6.mp3", img: "Part3/Part3-2/16-18번 문제 이미지.jpg", conv: [
+        ["Gregor, thanks for coming in early this afternoon. It's been busy here at the nursery today, and you do a great job helping our customers.", "그레고르, 오늘 오후 일찍 나와줘서 고마워요. 오늘 화원이 바빴는데, 당신은 고객 응대를 정말 잘해요."],
+        ["Thanks. I'm enjoying the work. What can I help you with now that it's slowed down?", "감사해요. 즐겁게 일하고 있어요. 이제 한가해졌는데 뭘 도와드릴까요?"],
+        ["Can you go to the greenhouse and water the flowers between the back door and aisle 3? The irrigation system is broken there.", "온실에 가서 뒷문과 3번 통로 사이에 있는 꽃에 물을 줄 수 있어요? 거기 관개 시스템이 고장 났거든요."],
+        ["Sure, I'll do that right away. And when I finish, I'll start organizing the seeds in the store.", "물론이죠, 바로 할게요. 끝나면 매장의 씨앗 정리를 시작할게요."],
+        ["Great. I'll be assisting a landscaper all afternoon. Feel free to text me if you have any questions.", "좋아요. 저는 오후 내내 조경사를 도울 거예요. 궁금한 게 있으면 언제든 문자 주세요."]
+      ] },
+      { nums: [19, 21], clip: "Part3/Part3-2/clips/g7.mp3", img: "Part3/Part3-2/19-21번 문제 이미지.jpg", conv: [
+        ["Hi, I just saw an advertisement in a magazine for a new shampoo. It's supposed to be good for dry hair.", "안녕하세요, 방금 잡지에서 새로 나온 샴푸 광고를 봤어요. 건조한 모발에 좋다고 하던데요."],
+        ["Oh, you must mean Sudsy Clean. It's one of our best sellers.", "아, 서지 클린(Sudsy Clean) 말씀이시군요. 저희 베스트셀러 중 하나예요."],
+        ["Great. Where are the hair care products?", "좋네요. 헤어 케어 제품은 어디에 있나요?"],
+        ["They're in aisle 5 next to the moisturizers.", "5번 통로, 보습제 옆에 있어요."],
+        ["Okay. By the way, do you have a customer loyalty program?", "알겠어요. 그런데 고객 멤버십(적립) 프로그램이 있나요?"],
+        ["Yes, we do. You can sign up by going to our website.", "네, 있어요. 저희 웹사이트에서 가입하실 수 있어요."]
+      ] },
+      { nums: [22, 24], clip: "Part3/Part3-2/clips/g8.mp3", img: "Part3/Part3-2/22-24번 문제 이미지.jpg", conv: [
+        ["Sabine, we need to collect soil samples for the county's annual environmental testing project. I think it'll be more efficient if we divide up the work. I'll walk to the lake and collect my samples. Can you head to the pine forest to collect yours? The soil test kits are on that shelf.", "사빈, 카운티의 연례 환경 검사 프로젝트를 위해 토양 샘플을 채취해야 해요. 일을 나눠서 하면 더 효율적일 것 같아요. 저는 호수까지 걸어가서 제 샘플을 채취할게요. 당신은 소나무 숲으로 가서 채취해 줄래요? 토양 검사 키트는 저 선반에 있어요."],
+        ["Yes, that works. By the way, while we're working, let's both take some photographs for the city's webpage. I think the community will find them interesting.", "네, 좋아요. 그런데 일하는 동안 시 웹페이지에 올릴 사진을 둘 다 찍어요. 주민들이 흥미로워할 것 같아요."],
+        ["You're right. Let me grab my camera.", "맞아요. 카메라를 가져올게요."]
+      ] }
+    ],
+    questions: [
+      { num: 1,  answer: "B", qEn: "What industry does the woman most likely work in?", qKo: "여자는 어떤 업계에서 일하겠는가?",
+        script: [
+          ["A", "Communications", "통신"],
+          ["B", "Roofing", "지붕 공사"],
+          ["C", "Manufacturing", "제조"],
+          ["D", "Retail sales", "소매 판매"]
+        ] },
+      { num: 2,  answer: "C", qEn: "What does the woman imply when she says, \"We have most of the supplies in our warehouse\"?", qKo: "여자가 \"필요한 자재 대부분이 창고에 있어요\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "Some items have been moved to another location.", "일부 물품이 다른 장소로 옮겨졌다."],
+          ["B", "An inventory list contains an error.", "재고 목록에 오류가 있다."],
+          ["C", "A project can be finished quickly.", "작업이 빨리 끝날 수 있다."],
+          ["D", "A delivery was completed successfully.", "배송이 성공적으로 완료되었다."]
+        ] },
+      { num: 3,  answer: "A", qEn: "What will the woman most likely do next?", qKo: "여자는 다음에 무엇을 하겠는가?",
+        script: [
+          ["A", "Retrieve a camera", "카메라 가져오기"],
+          ["B", "Contact a colleague", "동료에게 연락하기"],
+          ["C", "Prepare an invoice", "송장 준비하기"],
+          ["D", "Post a sign", "표지판 붙이기"]
+        ] },
+      { num: 4,  answer: "C", qEn: "Why does the woman say, \"this counter is for domestic services only\"?", qKo: "여자가 \"이 창구는 국내 업무 전용이에요\"라고 말한 이유는?",
+        script: [
+          ["A", "To criticize a rule", "규정을 비판하려고"],
+          ["B", "To express confusion", "혼란을 표현하려고"],
+          ["C", "To reject a request", "요청을 거절하려고"],
+          ["D", "To verify a fact", "사실을 확인하려고"]
+        ] },
+      { num: 5,  answer: "D", qEn: "What does the customer decide to do?", qKo: "고객은 무엇을 하기로 결정하는가?",
+        script: [
+          ["A", "Cancel a shipment", "배송 취소하기"],
+          ["B", "Exchange a product", "제품 교환하기"],
+          ["C", "Buy special packaging", "특수 포장재 구매하기"],
+          ["D", "Pay for faster delivery", "더 빠른 배송에 돈 지불하기"]
+        ] },
+      { num: 6,  answer: "C", qEn: "What will the customer probably pay an extra fee for?", qKo: "고객은 무엇에 대해 추가 요금을 내겠는가?",
+        script: [
+          ["A", "Damage insurance", "파손 보험"],
+          ["B", "Overnight shipping", "익일 배송"],
+          ["C", "Delivery confirmation", "배송 확인(알림)"],
+          ["D", "Oversized parcels", "대형 소포"]
+        ] },
+      { num: 7,  answer: "A", qEn: "Why does the woman call the man?", qKo: "여자는 왜 남자에게 전화하는가?",
+        script: [
+          ["A", "To report a problem", "문제를 보고하려고"],
+          ["B", "To request vacation time", "휴가를 신청하려고"],
+          ["C", "To arrange for an inspection", "점검 일정을 잡으려고"],
+          ["D", "To suggest a policy change", "정책 변경을 제안하려고"]
+        ] },
+      { num: 8,  answer: "C", qEn: "Who is Chen?", qKo: "첸은 누구인가?",
+        script: [
+          ["A", "A company spokesperson", "회사 대변인"],
+          ["B", "A salesclerk", "판매원"],
+          ["C", "A machinist", "기계공"],
+          ["D", "A security guard", "경비원"]
+        ] },
+      { num: 9,  answer: "D", qEn: "What does the man mean when he says, \"we have to keep the equipment running\"?", qKo: "남자가 \"장비는 계속 돌아가야 하니까요\"라고 말한 의도는?",
+        script: [
+          ["A", "His workload is too heavy.", "업무량이 너무 많다."],
+          ["B", "A night shift should be added.", "야간 근무조를 추가해야 한다."],
+          ["C", "Production needs to be increased.", "생산량을 늘려야 한다."],
+          ["D", "An expense is acceptable.", "비용을 감수할 수 있다."]
+        ] },
+      { num: 10, answer: "B", qEn: "What problem does the woman mention?", qKo: "여자는 어떤 문제를 언급하는가?",
+        script: [
+          ["A", "She cannot find some data.", "데이터를 찾을 수 없다."],
+          ["B", "She is unable to use a computer program.", "컴퓨터 프로그램을 사용하지 못한다."],
+          ["C", "A customer is unhappy.", "고객이 불만족스러워한다."],
+          ["D", "A timeline has been shortened.", "일정이 단축되었다."]
+        ] },
+      { num: 11, answer: "A", qEn: "What does the man suggest?", qKo: "남자는 무엇을 제안하는가?",
+        script: [
+          ["A", "Visiting a Web site", "웹사이트 방문하기"],
+          ["B", "Contacting a technician", "기술자에게 연락하기"],
+          ["C", "Obtaining a supervisor's approval", "상사의 승인 받기"],
+          ["D", "Postponing a decision", "결정 미루기"]
+        ] },
+      { num: 12, answer: "D", qEn: "What does the man imply when he says, \"I have a client meeting this morning\"?", qKo: "남자가 \"오늘 오전에 고객 미팅이 있어요\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "He is pleased to have a new client.", "새 고객이 생겨서 기쁘다."],
+          ["B", "He had been confused about his schedule.", "일정을 혼동했었다."],
+          ["C", "He needs some additional materials.", "추가 자료가 필요하다."],
+          ["D", "He is not available to provide help.", "도움을 줄 시간이 없다."]
+        ] },
+      { num: 13, answer: "A", qEn: "Look at the graphic. What item number is the man looking for?", qKo: "시각 자료를 보시오. 남자가 찾고 있는 품목 번호는?",
+        script: [
+          ["A", "7055", "7055 (Wire fencing roll · 철망 울타리 롤)"],
+          ["B", "9021", "9021 (Plywood panel · 합판)"],
+          ["C", "3022", "3022 (Sandbag · 모래주머니)"],
+          ["D", "8106", "8106 (Chainsaw · 전기톱)"]
+        ] },
+      { num: 14, answer: "A", qEn: "What does the woman say the man will need?", qKo: "여자는 남자에게 무엇이 필요할 거라고 말하는가?",
+        script: [
+          ["A", "A piece of equipment", "장비 (지게차)"],
+          ["B", "A printed map", "인쇄된 지도"],
+          ["C", "A manager's signature", "관리자의 서명"],
+          ["D", "A catalog", "카탈로그"]
+        ] },
+      { num: 15, answer: "B", qEn: "Why will the man speak to a customer?", qKo: "남자는 왜 고객에게 이야기할 것인가?",
+        script: [
+          ["A", "To confirm the spelling of a name", "이름 철자를 확인하려고"],
+          ["B", "To indicate that there will be a delay", "지연될 것임을 알리려고"],
+          ["C", "To give an update on pricing", "가격 관련 최신 정보를 알려주려고"],
+          ["D", "To recommend an additional product", "추가 제품을 추천하려고"]
+        ] },
+      { num: 16, answer: "C", qEn: "What does the woman compliment the man on?", qKo: "여자는 남자의 무엇을 칭찬하는가?",
+        script: [
+          ["A", "His attention to detail", "꼼꼼함"],
+          ["B", "His knowledge of plants", "식물에 대한 지식"],
+          ["C", "His customer service skills", "고객 응대 능력"],
+          ["D", "His time management skills", "시간 관리 능력"]
+        ] },
+      { num: 17, answer: "D", qEn: "Look at the graphic. Which type of flowers does the woman ask the man to water?", qKo: "시각 자료를 보시오. 여자는 남자에게 어떤 꽃에 물을 주라고 하는가?",
+        script: [
+          ["A", "Roses", "장미"],
+          ["B", "Petunias", "피튜니아"],
+          ["C", "Geraniums", "제라늄"],
+          ["D", "Sunflowers", "해바라기"]
+        ] },
+      { num: 18, answer: "B", qEn: "What does the woman say she is doing in the afternoon?", qKo: "여자는 오후에 무엇을 한다고 말하는가?",
+        script: [
+          ["A", "Ordering supplies", "물품 주문하기"],
+          ["B", "Meeting with a landscaper", "조경사와 만나기(돕기)"],
+          ["C", "Setting up a display", "진열대 설치하기"],
+          ["D", "Planning a special event", "특별 행사 기획하기"]
+        ] },
+      { num: 19, answer: "C", qEn: "How did the woman learn about a product?", qKo: "여자는 제품을 어떻게 알게 되었는가?",
+        script: [
+          ["A", "From her hairdresser", "미용사에게서"],
+          ["B", "From a social media site", "소셜 미디어 사이트에서"],
+          ["C", "From a magazine advertisement", "잡지 광고에서"],
+          ["D", "From a coworker", "동료에게서"]
+        ] },
+      { num: 20, answer: "B", qEn: "Look at the graphic. What is the price of the shampoo that the woman wants?", qKo: "시각 자료를 보시오. 여자가 원하는 샴푸의 가격은?",
+        script: [
+          ["A", "$5.00", "5달러 (Silky Smooth)"],
+          ["B", "$8.00", "8달러 (Sudsy Clean)"],
+          ["C", "$10.00", "10달러 (Sunlight Gold)"],
+          ["D", "$12.00", "12달러 (Beautiful Locks)"]
+        ] },
+      { num: 21, answer: "B", qEn: "What does the man say the woman can do on a Web site?", qKo: "남자는 여자가 웹사이트에서 무엇을 할 수 있다고 말하는가?",
+        script: [
+          ["A", "Complete a survey", "설문 작성하기"],
+          ["B", "Sign up for a loyalty program", "멤버십(적립) 프로그램 가입하기"],
+          ["C", "Read customer reviews", "고객 후기 읽기"],
+          ["D", "Apply for a job", "일자리 지원하기"]
+        ] },
+      { num: 22, answer: "A", qEn: "What are the speakers discussing?", qKo: "화자들은 무엇을 논의하고 있는가?",
+        script: [
+          ["A", "An environmental project", "환경 프로젝트"],
+          ["B", "A government regulation", "정부 규제"],
+          ["C", "A bridge repair", "교량 수리"],
+          ["D", "A job posting", "채용 공고"]
+        ] },
+      { num: 23, answer: "B", qEn: "Look at the graphic. Which trail will the woman take?", qKo: "시각 자료를 보시오. 여자는 어느 등산로를 이용할 것인가?",
+        script: [
+          ["A", "Trail 1", "1번 등산로 (산 방면)"],
+          ["B", "Trail 2", "2번 등산로 (소나무 숲 방면)"],
+          ["C", "Trail 3", "3번 등산로 (초원 방면)"],
+          ["D", "Trail 4", "4번 등산로 (호수 방면)"]
+        ] },
+      { num: 24, answer: "B", qEn: "What does the woman suggest posting on a Web site?", qKo: "여자는 웹사이트에 무엇을 올리자고 제안하는가?",
+        script: [
+          ["A", "Tour leaders' names", "투어 가이드들의 이름"],
+          ["B", "Photographs", "사진"],
+          ["C", "Research results", "연구 결과"],
+          ["D", "Driving directions", "운전 경로 안내"]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  },
+  "Part 3-3": {
+    audio: "Part3/Part3-3/750_P3_21.mp3",
+    printed: true,
+    groups: [
+      { nums: [32, 34], clip: "Part3/Part3-3/clips/g1.mp3", conv: [
+        ["Welcome to Casella's for all your printing needs. How can I help you?", "인쇄에 관한 모든 것, 카셀라스에 오신 것을 환영합니다. 무엇을 도와드릴까요?"],
+        ["Could you make some photocopies from this book for me? Pages 12 to 18, in black and white. And double-sided if you can.", "이 책에서 복사 좀 해주실 수 있나요? 12~18페이지를 흑백으로요. 가능하면 양면으로 해주세요."],
+        ["Absolutely. Though I should let you know that our credit card reader is broken right now, so you're going to have to pay in cash. Sorry about that.", "물론이죠. 다만 지금 신용카드 단말기가 고장 나서 현금으로 결제하셔야 해요. 죄송합니다."],
+        ["Oh, I don't usually carry cash on me. Do you have a cash machine?", "아, 저는 보통 현금을 안 가지고 다녀서요. 현금인출기가 있나요?"],
+        ["No, but Greenville Bank has a branch just down the street.", "없어요. 하지만 그린빌 은행 지점이 바로 길 아래에 있어요."]
+      ] },
+      { nums: [35, 37], clip: "Part3/Part3-3/clips/g2.mp3", conv: [
+        ["Hi, Mr. Reynolds. This is Roberta Heinz from Apartment 4B. I'm doing my laundry in the basement right now, and the washing machine doesn't seem to be working properly. I wanted to make sure building management was aware of the problem.", "안녕하세요, 레이놀즈 씨. 4B호에 사는 로베르타 하인츠예요. 지금 지하에서 빨래를 하고 있는데, 세탁기가 제대로 작동하지 않는 것 같아요. 건물 관리소에서 이 문제를 알고 계신지 확인하고 싶었어요."],
+        ["Oh, thanks for letting me know. I just had that machine installed, so I'm surprised that it's giving you trouble. What's the problem exactly?", "아, 알려주셔서 감사해요. 그 세탁기는 설치한 지 얼마 안 돼서 문제가 생겼다니 놀랍네요. 정확히 어떤 문제인가요?"],
+        ["Well, at the end of the wash cycle, the water doesn't drain out of the machine like it's supposed to. It's still completely full.", "세탁이 끝나면 물이 빠져나가야 하는데 그러질 않아요. 아직도 물이 가득 차 있어요."],
+        ["Okay, I'll call an appliance repair service now and ask them to come take a look.", "알겠어요. 지금 가전 수리 업체에 전화해서 와서 봐달라고 할게요."]
+      ] },
+      { nums: [38, 40], clip: "Part3/Part3-3/clips/g3.mp3", conv: [
+        ["Alright everyone, to end this meeting, let's discuss the office picnic. How's the planning going, Hector?", "자 여러분, 회의를 마무리하며 사무실 야유회에 대해 논의합시다. 헥터, 준비는 어떻게 되고 있나요?"],
+        ["We're all set for Riverside Park. I've booked a picnic pavilion that's got a roof over ten picnic tables.", "리버사이드 공원으로 다 준비됐어요. 피크닉 테이블 10개 위에 지붕이 있는 파빌리온(정자)을 예약했어요."],
+        ["Oh, I'm relieved you were able to get that one. That'll be perfect, especially if it rains. And what else do we need?", "오, 그곳을 예약했다니 다행이네요. 특히 비가 오면 딱 좋겠어요. 그리고 또 뭐가 필요하죠?"],
+        ["Well, I'll bring plates and cups, and Lorenzo is making his famous pasta salad. Right, Lorenzo?", "음, 접시랑 컵은 제가 가져올 거고, 로렌조가 그 유명한 파스타 샐러드를 만들 거예요. 맞죠, 로렌조?"],
+        ["Yes, but unfortunately I won't be able to attend. My son's got a soccer game. I'll still drop off the salad, though.", "네, 그런데 아쉽게도 저는 참석을 못 해요. 아들이 축구 경기가 있거든요. 그래도 샐러드는 가져다 놓을게요."]
+      ] },
+      { nums: [41, 43], clip: "Part3/Part3-3/clips/g4.mp3", conv: [
+        ["How are preparations going for the workshop on accounting spreadsheets, Maria? I assume a lot of employees will want to attend since the new software isn't very intuitive.", "회계 스프레드시트 워크숍 준비는 어떻게 되고 있어요, 마리아? 새 소프트웨어가 그리 직관적이지 않아서 많은 직원이 참석하고 싶어 할 것 같은데요."],
+        ["There has been a lot of interest in the workshop. Now I just need to find a place to hold it.", "워크숍에 관심이 많아요. 이제 열 장소만 찾으면 돼요."],
+        ["You can't use the meeting room downstairs? It'll hold 20 people.", "아래층 회의실을 쓰면 안 돼요? 20명은 수용할 수 있는데요."],
+        ["Thirty people plan to attend.", "30명이 참석할 예정이에요."],
+        ["Oh, I see. Well, you could always call the James Hotel. We hosted a training session there a couple of years ago.", "아, 그렇군요. 그럼 제임스 호텔에 전화해 보세요. 몇 년 전에 거기서 교육을 진행한 적이 있어요."],
+        ["Good idea. I'll set aside some time this afternoon to stop by the hotel and see what they have to offer.", "좋은 생각이에요. 오늘 오후에 시간을 내서 호텔에 들러 어떤 조건인지 알아볼게요."]
+      ] },
+      { nums: [44, 46], clip: "Part3/Part3-3/clips/g5.mp3", conv: [
+        ["Myung Hua, you're in charge of putting together the architectural proposal for our firm to renovate the Olivier building, right? How's that coming along?", "명화 씨, 우리 회사가 올리비에 빌딩을 개조하는 건축 제안서 작성을 담당하고 있죠? 어떻게 되어 가고 있나요?"],
+        ["I'm nearly finished. I just need to calculate a time estimate for delivering the blueprint designs.", "거의 다 끝났어요. 설계 도면 납품에 걸리는 예상 시간만 계산하면 돼요."],
+        ["The scope of work will be similar to the Johnson project that we worked on last year. You could check how long it took to develop those blueprints and use that as a reference point.", "작업 범위가 작년에 했던 존슨 프로젝트와 비슷할 거예요. 그때 도면 작성에 얼마나 걸렸는지 확인해서 참고 기준으로 쓰면 돼요."],
+        ["Kevin led that project, right? I'll give him a call to see if he can send me the information.", "그 프로젝트는 케빈이 이끌었죠? 그 정보를 보내줄 수 있는지 전화해 볼게요."]
+      ] },
+      { nums: [47, 49], clip: "Part3/Part3-3/clips/g6.mp3", conv: [
+        ["I pulled the trays of pastries out of the oven for you. They're cooling.", "페이스트리 트레이를 오븐에서 꺼내놨어요. 식히는 중이에요."],
+        ["Thanks for doing that.", "고마워요."],
+        ["Sure. By the way, this morning I checked our supplies and noticed that we used more bread flour than usual this month. What's going on?", "별말씀을요. 그런데 오늘 아침에 재고를 확인했는데 이번 달에 강력분(제빵용 밀가루)을 평소보다 많이 썼더라고요. 무슨 일이에요?"],
+        ["Well, as you know, bread flour makes bread lighter and chewier. To improve the recipe, I've adjusted it to use more bread flour.", "아시다시피 강력분을 쓰면 빵이 더 가볍고 쫄깃해져요. 레시피를 개선하려고 강력분을 더 쓰도록 조정했어요."],
+        ["OK, I'll consider that when I order supplies.", "알겠어요. 재료를 주문할 때 감안할게요."],
+        ["And don't forget to stock up on ingredients for our holiday treats.", "그리고 홀리데이(명절) 간식 재료도 잊지 말고 채워 놓으세요."],
+        ["I appreciate the reminder. I'll check last year's orders now to see what we used previously.", "알려줘서 고마워요. 예전에 뭘 썼는지 지금 작년 주문 내역을 확인해 볼게요."]
+      ] },
+      { nums: [50, 52], clip: "Part3/Part3-3/clips/g7.mp3", conv: [
+        ["Hey Marta, did you hear the news? The mayor has appointed a new director of city transportation.", "마르타, 소식 들었어요? 시장이 새 시 교통국장을 임명했대요."],
+        ["That's good news. I hope the new director will make getting some new train cars a priority.", "좋은 소식이네요. 새 국장이 새 열차 차량 도입을 우선순위로 삼았으면 좋겠어요."],
+        ["Yes, we've had many customer complaints about our outdated equipment.", "네, 노후 장비에 대한 고객 불만이 많았잖아요."],
+        ["Right. People have been unhappy about the old train cars.", "맞아요. 사람들이 낡은 열차 차량에 불만이 많았어요."],
+        ["Well, the mayor is scheduled to hold a press conference this afternoon. Maybe she'll share some information about plans to solve that problem.", "시장이 오늘 오후에 기자회견을 열 예정이에요. 그 문제 해결 계획에 대한 정보를 공유할지도 몰라요."]
+      ] },
+      { nums: [53, 55], clip: "Part3/Part3-3/clips/g8.mp3", conv: [
+        ["Okay, the annual budget proposals have to be submitted this week. Is there anything special our sales team needs?", "자, 연간 예산 제안서를 이번 주에 제출해야 해요. 우리 영업팀에 특별히 필요한 게 있나요?"],
+        ["Well, since the company just gave our team permission to work from home twice each week, I think we should consider getting everyone a tablet computer.", "음, 회사가 우리 팀에 주 2회 재택근무를 막 허용해 줬으니, 모두에게 태블릿 컴퓨터를 지급하는 걸 고려해야 할 것 같아요."],
+        ["Good idea! Then we won't need to use our personal computers when we work at home.", "좋은 생각이에요! 그러면 집에서 일할 때 개인 컴퓨터를 쓸 필요가 없겠네요."],
+        ["Are there enough funds available within the budget?", "예산 안에 충분한 자금이 있나요?"],
+        ["I think so, but we might have to do some research to find ones that are reasonably priced. I'll take a look this afternoon and make a list of tablets we can suggest to management.", "그럴 거예요. 다만 가격이 적당한 제품을 찾으려면 조사를 좀 해야 할 수도 있어요. 오늘 오후에 살펴보고 경영진에 제안할 태블릿 목록을 만들게요."]
+      ] },
+      { nums: [56, 58], clip: "Part3/Part3-3/clips/g9.mp3", conv: [
+        ["Hello, my name is Rachel Grant. I'm an administrative assistant in the research department. I was hoping someone from Human Resources could answer a question for me about employee benefits.", "안녕하세요, 저는 레이첼 그랜트예요. 연구부서에서 행정 보조로 일하고 있어요. 인사팀에서 직원 복리후생에 관한 질문에 답해 주실 수 있을까 해서요."],
+        ["Of course. I'll be happy to help you if I can, Rachel. Why don't you give me your employee ID number so I can pull up your file?", "물론이죠. 제가 도울 수 있다면 기꺼이 도와드릴게요, 레이첼. 파일을 조회할 수 있게 사원 번호를 알려주시겠어요?"],
+        ["Sure. It's 904-376. My question is about the school tuition reimbursement. I heard that our company will pay for full-time employees to attend university classes.", "네. 904-376이에요. 학비 환급에 대해 궁금한데요. 회사가 정규직 직원의 대학 수업료를 지원해 준다고 들었어요."],
+        ["Yes, it is company policy to pay for university classes for employees. The first thing you'll need to do is talk to your manager and get her approval for the courses you intend to take.", "네, 직원의 대학 수업료를 지원하는 것이 회사 정책이에요. 먼저 하실 일은 매니저와 상의해서 수강하려는 과목에 대한 승인을 받는 거예요."]
+      ] },
+      { nums: [59, 61], clip: "Part3/Part3-3/clips/g10.mp3", conv: [
+        ["Amina, I'm training the new sales representatives tomorrow. It's my first time doing this, and I'd like your input on the materials I'll be using. Are you busy right now?", "아미나, 제가 내일 신입 영업사원 교육을 해요. 처음 하는 거라서 사용할 자료에 대한 의견을 듣고 싶어요. 지금 바쁘세요?"],
+        ["Oh, the project I'm working on isn't due until next week. Have a seat. Did you bring the handout with the sales strategies?", "아, 제가 하고 있는 프로젝트는 다음 주까지가 마감이에요. 앉으세요. 영업 전략이 담긴 유인물 가져왔어요?"],
+        ["I've got it right here with me.", "네, 여기 가지고 있어요."],
+        ["I like the general outline, but the list of steps for getting to know customers seems too long. I'd recommend shortening it. What do you think?", "전체 개요는 마음에 드는데, 고객을 파악하는 단계 목록이 너무 긴 것 같아요. 줄이는 걸 추천해요. 어떻게 생각해요?"]
+      ] },
+      { nums: [62, 64], clip: "Part3/Part3-3/clips/g11.mp3", img: "Part3/Part3-3/62-64번 문제 이미지.jpg", conv: [
+        ["I love the new yoga mats you bought for the studio, Ahmed. I can't believe they're made of 100% recycled materials.", "아메드, 스튜디오용으로 새로 산 요가 매트 정말 마음에 들어요. 100% 재활용 소재로 만들어졌다니 놀라워요."],
+        ["Me too, and they're very high quality. I'm excited to use them in today's fitness class.", "저도요. 품질도 아주 좋아요. 오늘 피트니스 수업에서 쓸 생각에 신나요."],
+        ["Do you need help setting them up?", "설치(준비)하는 것 도와드릴까요?"],
+        ["No, I can do it myself, but can you finish preparing the playlist? It's called Evening Playlist, and it's on my phone.", "아니요, 그건 제가 할 수 있어요. 대신 플레이리스트 준비를 마무리해 줄래요? '이브닝 플레이리스트'라고 제 폰에 있어요."],
+        ["Okay, I found it. Do you want to add some songs?", "네, 찾았어요. 노래를 추가할까요?"],
+        ["No, just change the order. If you move the second song to the end, I think we'll be set for tonight's session.", "아니요, 순서만 바꿔주세요. 두 번째 곡을 맨 뒤로 옮기면 오늘 밤 세션 준비는 끝날 것 같아요."]
+      ] },
+      { nums: [65, 67], clip: "Part3/Part3-3/clips/g12.mp3", img: "Part3/Part3-3/65-67번 문제 이미지.jpg", conv: [
+        ["Hi, I'd like to buy a ticket for the 7 o'clock showing of the Nature documentary. Do you offer a student discount?", "안녕하세요, 7시에 상영하는 자연 다큐멘터리 표를 한 장 사고 싶은데요. 학생 할인이 있나요?"],
+        ["Yes, we do. If you have your student ID, you're eligible for a 10% discount.", "네, 있어요. 학생증이 있으면 10% 할인을 받으실 수 있어요."],
+        ["Great, here it is.", "좋네요, 여기 있어요."],
+        ["Thank you, that'll be $12. Also, we're running a special at our snack counter today. You'll get a free beverage with the purchase of any food item.", "감사합니다, 12달러입니다. 그리고 오늘 스낵 코너에서 특별 행사를 하고 있어요. 음식을 하나라도 구매하시면 음료를 무료로 드려요."],
+        ["That sounds good, but I actually just had dinner, so I'll head directly to the theater.", "좋긴 한데, 사실 방금 저녁을 먹어서요. 바로 상영관으로 갈게요."],
+        ["Okay, here's your ticket. The movie is showing in the theater closest to the snack counter.", "알겠습니다, 여기 표 받으세요. 영화는 스낵 코너에서 가장 가까운 상영관에서 상영해요."]
+      ] },
+      { nums: [68, 70], clip: "Part3/Part3-3/clips/g13.mp3", img: "Part3/Part3-3/68-70번 문제 이미지.jpg", conv: [
+        ["Fabrice, I found some excellent venues with enough space to hold our national marketing conference. Here's a table with the top picks. I've marked the ones that have a fitness center and a complimentary breakfast. I've also noted the ones that are near the train station.", "파브리스, 우리 전국 마케팅 컨퍼런스를 열기에 충분한 공간을 갖춘 훌륭한 장소들을 찾았어요. 여기 상위 후보 표예요. 피트니스 센터와 무료 조식이 있는 곳을 표시했고, 기차역 근처인 곳도 표시해 뒀어요."],
+        ["Well, the two most important things are that it's located by the train station and that it offers a free breakfast.", "음, 가장 중요한 두 가지는 기차역 옆에 있다는 것과 무료 조식을 제공한다는 거예요."],
+        ["So that leaves only one option. I'll reach out to that hotel about our prospective dates.", "그럼 선택지는 하나만 남네요. 그 호텔에 우리 예정 날짜에 대해 연락해 볼게요."],
+        ["Excellent. I'm working on the conference website with information about speaker proposals and registration. As soon as the venue is confirmed, I'll post the update.", "좋아요. 저는 발표자 제안과 등록 정보가 담긴 컨퍼런스 웹사이트 작업을 하고 있어요. 장소가 확정되는 대로 업데이트를 올릴게요."]
+      ] }
+    ],
+    questions: [
+      { num: 32, answer: "A", qEn: "Where are the speakers?", qKo: "화자들은 어디에 있는가?",
+        script: [
+          ["A", "At a print shop", "인쇄소"],
+          ["B", "At a library", "도서관"],
+          ["C", "At a bookstore", "서점"],
+          ["D", "At an electronics store", "전자제품 매장"]
+        ] },
+      { num: 33, answer: "D", qEn: "Why does the woman apologize?", qKo: "여자는 왜 사과하는가?",
+        script: [
+          ["A", "The man had to wait a long time.", "남자가 오래 기다려야 했다."],
+          ["B", "The business will be closing early.", "가게가 일찍 문을 닫을 것이다."],
+          ["C", "An order was incorrect.", "주문이 잘못되었다."],
+          ["D", "A device is not working.", "기기가 작동하지 않는다."]
+        ] },
+      { num: 34, answer: "B", qEn: "What will the man most likely do next?", qKo: "남자는 다음에 무엇을 하겠는가?",
+        script: [
+          ["A", "Make a phone call", "전화 걸기"],
+          ["B", "Go to a bank", "은행에 가기"],
+          ["C", "Download a mobile application", "모바일 앱 다운로드하기"],
+          ["D", "Use a coupon", "쿠폰 사용하기"]
+        ] },
+      { num: 35, answer: "C", qEn: "What problem is the woman calling about?", qKo: "여자는 어떤 문제로 전화하는가?",
+        script: [
+          ["A", "A pipe is leaking.", "파이프가 새고 있다."],
+          ["B", "A door will not open.", "문이 열리지 않는다."],
+          ["C", "A washing machine is not functioning properly.", "세탁기가 제대로 작동하지 않는다."],
+          ["D", "A heating unit is broken.", "난방 장치가 고장 났다."]
+        ] },
+      { num: 36, answer: "C", qEn: "Who most likely is the man?", qKo: "남자는 누구이겠는가?",
+        script: [
+          ["A", "A plumber", "배관공"],
+          ["B", "A safety inspector", "안전 검사관"],
+          ["C", "A property manager", "건물 관리인"],
+          ["D", "A real estate agent", "부동산 중개인"]
+        ] },
+      { num: 37, answer: "B", qEn: "What does the man say he will do?", qKo: "남자는 무엇을 하겠다고 말하는가?",
+        script: [
+          ["A", "Consult a manual", "설명서 참고하기"],
+          ["B", "Contact a repair service", "수리 업체에 연락하기"],
+          ["C", "Fill out some paperwork", "서류 작성하기"],
+          ["D", "Find a replacement part", "교체 부품 찾기"]
+        ] },
+      { num: 38, answer: "B", qEn: "What kind of event is being planned?", qKo: "어떤 종류의 행사가 계획되고 있는가?",
+        script: [
+          ["A", "A birthday party", "생일 파티"],
+          ["B", "A company picnic", "회사 야유회"],
+          ["C", "A soccer game", "축구 경기"],
+          ["D", "A charity fund-raiser", "자선 모금 행사"]
+        ] },
+      { num: 39, answer: "C", qEn: "Why does the woman say she is relieved?", qKo: "여자는 왜 안심된다고 말하는가?",
+        script: [
+          ["A", "A weather report is good.", "일기예보가 좋다."],
+          ["B", "A caterer is available.", "케이터링 업체가 가능하다."],
+          ["C", "A covered area was reserved.", "지붕 있는 공간이 예약되었다."],
+          ["D", "A product launch was successful.", "제품 출시가 성공적이었다."]
+        ] },
+      { num: 40, answer: "D", qEn: "What will Lorenzo contribute to an event?", qKo: "로렌조는 행사에 무엇을 제공할 것인가?",
+        script: [
+          ["A", "Some lawn furniture", "야외용 가구"],
+          ["B", "Some sports equipment", "스포츠 장비"],
+          ["C", "Some beverages", "음료"],
+          ["D", "Some food", "음식"]
+        ] },
+      { num: 41, answer: "D", qEn: "What event are the speakers discussing?", qKo: "화자들은 어떤 행사를 논의하고 있는가?",
+        script: [
+          ["A", "A press conference", "기자회견"],
+          ["B", "A health fair", "건강 박람회"],
+          ["C", "A celebration", "축하 행사"],
+          ["D", "A workshop", "워크숍"]
+        ] },
+      { num: 42, answer: "D", qEn: "What does the woman imply when she says, \"Thirty people plan to attend\"?", qKo: "여자가 \"30명이 참석할 예정이에요\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "A caterer should be contacted.", "케이터링 업체에 연락해야 한다."],
+          ["B", "A guest list should be updated.", "손님 명단을 업데이트해야 한다."],
+          ["C", "A time frame is too short.", "시간이 너무 촉박하다."],
+          ["D", "A room is not big enough.", "회의실이 충분히 크지 않다."]
+        ] },
+      { num: 43, answer: "A", qEn: "What does the woman say she will do this afternoon?", qKo: "여자는 오늘 오후에 무엇을 하겠다고 말하는가?",
+        script: [
+          ["A", "Visit a hotel", "호텔 방문하기"],
+          ["B", "Review a budget", "예산 검토하기"],
+          ["C", "Prepare a presentation", "발표 준비하기"],
+          ["D", "Pick up some invitations", "초대장 찾아오기"]
+        ] },
+      { num: 44, answer: "C", qEn: "Where do the speakers most likely work?", qKo: "화자들은 어디에서 일하겠는가?",
+        script: [
+          ["A", "At an apartment complex", "아파트 단지"],
+          ["B", "At a software company", "소프트웨어 회사"],
+          ["C", "At an architecture firm", "건축 회사"],
+          ["D", "At an employment agency", "직업소개소"]
+        ] },
+      { num: 45, answer: "B", qEn: "What does the man recommend doing?", qKo: "남자는 무엇을 하라고 권하는가?",
+        script: [
+          ["A", "Proposing a change of venue", "장소 변경 제안하기"],
+          ["B", "Using information from an earlier project", "이전 프로젝트의 정보 활용하기"],
+          ["C", "Hiring a professional photographer", "전문 사진작가 고용하기"],
+          ["D", "Purchasing some new machinery", "새 기계 구입하기"]
+        ] },
+      { num: 46, answer: "A", qEn: "What will the woman most likely do next?", qKo: "여자는 다음에 무엇을 하겠는가?",
+        script: [
+          ["A", "Contact her coworker", "동료에게 연락하기"],
+          ["B", "Check her calendar", "일정 확인하기"],
+          ["C", "Take her lunch break", "점심시간 갖기"],
+          ["D", "Practice her presentation", "발표 연습하기"]
+        ] },
+      { num: 47, answer: "B", qEn: "Where is the conversation most likely taking place?", qKo: "대화는 어디에서 이루어지고 있겠는가?",
+        script: [
+          ["A", "At a flour processing plant", "밀가루 가공 공장"],
+          ["B", "At a bakery", "제과점"],
+          ["C", "At a cooking school", "요리 학교"],
+          ["D", "At a food festival", "음식 축제"]
+        ] },
+      { num: 48, answer: "A", qEn: "Why was a recipe modified?", qKo: "레시피는 왜 수정되었는가?",
+        script: [
+          ["A", "To create a better product", "더 나은 제품을 만들려고"],
+          ["B", "To address customer complaints", "고객 불만에 대응하려고"],
+          ["C", "To lower production costs", "생산 비용을 낮추려고"],
+          ["D", "To compensate for a supply shortage", "재료 부족을 보완하려고"]
+        ] },
+      { num: 49, answer: "D", qEn: "What will the woman do next?", qKo: "여자는 다음에 무엇을 할 것인가?",
+        script: [
+          ["A", "Sample a new product", "신제품 시식하기"],
+          ["B", "Contact a customer", "고객에게 연락하기"],
+          ["C", "Schedule an employee party", "직원 파티 일정 잡기"],
+          ["D", "Review some records", "기록 검토하기"]
+        ] },
+      { num: 50, answer: "C", qEn: "What news does the man share?", qKo: "남자는 어떤 소식을 전하는가?",
+        script: [
+          ["A", "A rail line has been expanded.", "철도 노선이 확장되었다."],
+          ["B", "Some training events have been scheduled.", "교육 행사 일정이 잡혔다."],
+          ["C", "A new director has been appointed.", "새 국장이 임명되었다."],
+          ["D", "A special election will be held soon.", "곧 특별 선거가 열릴 것이다."]
+        ] },
+      { num: 51, answer: "A", qEn: "What improvement do the speakers hope to see?", qKo: "화자들은 어떤 개선을 바라는가?",
+        script: [
+          ["A", "Better equipment", "더 나은 장비"],
+          ["B", "Faster service", "더 빠른 서비스"],
+          ["C", "Higher salaries", "더 높은 급여"],
+          ["D", "Longer hours of operation", "더 긴 운영 시간"]
+        ] },
+      { num: 52, answer: "C", qEn: "What is scheduled for this afternoon?", qKo: "오늘 오후에 무엇이 예정되어 있는가?",
+        script: [
+          ["A", "An investors' meeting", "투자자 회의"],
+          ["B", "A facility tour", "시설 견학"],
+          ["C", "A press conference", "기자회견"],
+          ["D", "A job interview", "취업 면접"]
+        ] },
+      { num: 53, answer: "B", qEn: "What are the speakers discussing?", qKo: "화자들은 무엇을 논의하고 있는가?",
+        script: [
+          ["A", "A hiring decision", "채용 결정"],
+          ["B", "A budget request", "예산 요청"],
+          ["C", "Some computer software", "컴퓨터 소프트웨어"],
+          ["D", "Some sales tactics", "영업 전략"]
+        ] },
+      { num: 54, answer: "C", qEn: "What are some staff now allowed to do?", qKo: "일부 직원들은 이제 무엇을 할 수 있게 되었는가?",
+        script: [
+          ["A", "Decorate their offices", "사무실 꾸미기"],
+          ["B", "Attend a conference", "컨퍼런스 참석하기"],
+          ["C", "Work from home", "재택근무하기"],
+          ["D", "Wear casual clothes", "평상복 입기"]
+        ] },
+      { num: 55, answer: "A", qEn: "What will the woman do this afternoon?", qKo: "여자는 오늘 오후에 무엇을 할 것인가?",
+        script: [
+          ["A", "Conduct some research", "조사하기"],
+          ["B", "Meet with a client", "고객과 만나기"],
+          ["C", "Repair some equipment", "장비 수리하기"],
+          ["D", "Update a calendar", "일정표 업데이트하기"]
+        ] },
+      { num: 56, answer: "C", qEn: "Why is the woman calling?", qKo: "여자는 왜 전화하는가?",
+        script: [
+          ["A", "To discuss a research project", "연구 프로젝트를 논의하려고"],
+          ["B", "To inquire about a product order", "제품 주문에 대해 문의하려고"],
+          ["C", "To ask about an employee benefit", "직원 복리후생에 대해 물어보려고"],
+          ["D", "To confirm a meeting time", "회의 시간을 확인하려고"]
+        ] },
+      { num: 57, answer: "A", qEn: "What information does the man ask for?", qKo: "남자는 어떤 정보를 요청하는가?",
+        script: [
+          ["A", "An identification number", "식별 번호(사원 번호)"],
+          ["B", "An e-mail address", "이메일 주소"],
+          ["C", "An office location", "사무실 위치"],
+          ["D", "A telephone number", "전화번호"]
+        ] },
+      { num: 58, answer: "A", qEn: "What does the man say the woman needs?", qKo: "남자는 여자에게 무엇이 필요하다고 말하는가?",
+        script: [
+          ["A", "Management approval", "관리자의 승인"],
+          ["B", "Advanced computer skills", "고급 컴퓨터 활용 능력"],
+          ["C", "A signed application form", "서명된 신청서"],
+          ["D", "An updated agenda", "업데이트된 안건"]
+        ] },
+      { num: 59, answer: "A", qEn: "What will the man do tomorrow?", qKo: "남자는 내일 무엇을 할 것인가?",
+        script: [
+          ["A", "Conduct a training", "교육 진행하기"],
+          ["B", "Finalize a budget", "예산 확정하기"],
+          ["C", "Meet with a client", "고객과 만나기"],
+          ["D", "Submit a report", "보고서 제출하기"]
+        ] },
+      { num: 60, answer: "A", qEn: "Why does the woman say, \"the project I'm working on isn't due until next week\"?", qKo: "여자가 \"제가 하는 프로젝트는 다음 주까지가 마감이에요\"라고 말한 이유는?",
+        script: [
+          ["A", "To indicate her availability", "시간이 있음을 알리려고"],
+          ["B", "To correct a mistake", "실수를 바로잡으려고"],
+          ["C", "To decline an offer", "제안을 거절하려고"],
+          ["D", "To propose a new deadline", "새 마감일을 제안하려고"]
+        ] },
+      { num: 61, answer: "C", qEn: "What does the man suggest changing?", qKo: "남자는 무엇을 바꾸라고 제안하는가?",
+        script: [
+          ["A", "The size of a diagram", "도표의 크기"],
+          ["B", "The location of a logo", "로고의 위치"],
+          ["C", "The length of a list", "목록의 길이"],
+          ["D", "The order of some information", "정보의 순서"]
+        ] },
+      { num: 62, answer: "C", qEn: "Where most likely are the speakers?", qKo: "화자들은 어디에 있겠는가?",
+        script: [
+          ["A", "At a coffee shop", "커피숍"],
+          ["B", "At a theater", "극장"],
+          ["C", "At a fitness center", "피트니스 센터"],
+          ["D", "At an electronics store", "전자제품 매장"]
+        ] },
+      { num: 63, answer: "B", qEn: "What does the woman offer to help the man with?", qKo: "여자는 남자에게 무엇을 도와주겠다고 하는가?",
+        script: [
+          ["A", "Recycling some materials", "재료 재활용하기"],
+          ["B", "Setting up some equipment", "장비 설치(준비)하기"],
+          ["C", "Posting some signs", "표지판 붙이기"],
+          ["D", "Sweeping the floor", "바닥 쓸기"]
+        ] },
+      { num: 64, answer: "A", qEn: "Look at the graphic. Which song should be moved to the end of the playlist?", qKo: "시각 자료를 보시오. 어떤 곡을 플레이리스트 맨 뒤로 옮겨야 하는가?",
+        script: [
+          ["A", "\"Long Ocean\"", "롱 오션 (두 번째 곡)"],
+          ["B", "\"Not in Flux\"", "낫 인 플럭스 (세 번째 곡)"],
+          ["C", "\"Opal Field\"", "오팔 필드 (네 번째 곡)"],
+          ["D", "\"Fancy Heart\"", "팬시 하트 (다섯 번째 곡)"]
+        ] },
+      { num: 65, answer: "C", qEn: "What does the man ask the woman about?", qKo: "남자는 여자에게 무엇에 대해 묻는가?",
+        script: [
+          ["A", "Free parking", "무료 주차"],
+          ["B", "Seating options", "좌석 선택"],
+          ["C", "A student discount", "학생 할인"],
+          ["D", "A payment method", "결제 수단"]
+        ] },
+      { num: 66, answer: "D", qEn: "Why does the man decline an offer?", qKo: "남자는 왜 제안을 거절하는가?",
+        script: [
+          ["A", "He rarely goes to the theater.", "극장에 거의 가지 않는다."],
+          ["B", "He is meeting a friend.", "친구를 만날 예정이다."],
+          ["C", "He buys tickets online.", "표를 온라인으로 산다."],
+          ["D", "He just ate a meal.", "방금 식사를 했다."]
+        ] },
+      { num: 67, answer: "D", qEn: "Look at the graphic. Where will the man go next?", qKo: "시각 자료를 보시오. 남자는 다음에 어디로 가겠는가?",
+        script: [
+          ["A", "To Theater 1", "1번 상영관"],
+          ["B", "To Theater 2", "2번 상영관"],
+          ["C", "To Theater 3", "3번 상영관"],
+          ["D", "To Theater 4", "4번 상영관 (스낵 코너에서 가장 가까움)"]
+        ] },
+      { num: 68, answer: "C", qEn: "What are the speakers organizing?", qKo: "화자들은 무엇을 준비하고 있는가?",
+        script: [
+          ["A", "A hiring event", "채용 행사"],
+          ["B", "A family reunion", "가족 모임"],
+          ["C", "A marketing conference", "마케팅 컨퍼런스"],
+          ["D", "An employee retreat", "직원 수련회"]
+        ] },
+      { num: 69, answer: "A", qEn: "Look at the graphic. Which hotel do the speakers prefer?", qKo: "시각 자료를 보시오. 화자들은 어느 호텔을 선호하는가?",
+        script: [
+          ["A", "The Parkview", "파크뷰 (역 근처 ✓ + 무료 조식 ✓)"],
+          ["B", "The Ridgemore", "리지모어"],
+          ["C", "The Granville", "그랜빌"],
+          ["D", "The Marlington", "말링턴"]
+        ] },
+      { num: 70, answer: "C", qEn: "What does the man say he is working on?", qKo: "남자는 무엇을 작업 중이라고 말하는가?",
+        script: [
+          ["A", "Renting some equipment", "장비 대여하기"],
+          ["B", "Getting official permits", "공식 허가 받기"],
+          ["C", "Updating a Web site", "웹사이트 업데이트하기"],
+          ["D", "Finalizing a menu", "메뉴 확정하기"]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  },
+  "Part 4-1": {
+    audio: "Part4/Part4-1/750_P4_03.mp3",
+    printed: true,
+    groupWord: "담화",
+    groups: [
+      { nums: [1, 3], clip: "Part4/Part4-1/clips/g1.mp3", conv: [
+        ["Hello. Thank you for calling Fells Point Electronics, the store for all your electronic needs. The store is now closed.", "안녕하세요. 전자제품의 모든 것, 펠스 포인트 전자에 전화 주셔서 감사합니다. 지금은 영업이 종료되었습니다."],
+        ["And remember, we will be closed this weekend, October 25th and 26th, due to the national holiday. The store will reopen for business on October 27th.", "그리고 이번 주말인 10월 25일과 26일은 국경일로 휴무입니다. 매장은 10월 27일에 다시 문을 엽니다."],
+        ["If you're calling about your recent purchase of a Nightingale television set, we are aware that these may be defective. Because of this, the store is offering a five-year warranty on these televisions. Just bring in your receipt to register for the extended warranty.", "최근 구매하신 나이팅게일 TV 관련 문의라면, 해당 제품에 결함이 있을 수 있다는 점을 저희도 인지하고 있습니다. 이 때문에 저희 매장은 이 TV에 대해 5년 보증을 제공하고 있습니다. 영수증을 가져오시면 연장 보증을 등록하실 수 있습니다."]
+      ] },
+      { nums: [4, 6], clip: "Part4/Part4-1/clips/g2.mp3", conv: [
+        ["Hello, this message is for Lisa Cheng. Ms. Cheng, I'm calling on behalf of the Canadian Association of Nurses.", "안녕하세요, 리사 챙 씨께 남기는 메시지입니다. 챙 씨, 캐나다 간호사 협회를 대표해 전화드립니다."],
+        ["We're having our annual conference on November 15th in Calgary, and I'd like to invite you to give a lecture about your research on proper nutrition for hospital patients.", "11월 15일 캘거리에서 연례 컨퍼런스가 열리는데, 입원 환자를 위한 올바른 영양에 관한 연구에 대해 강연해 주십사 초청하고 싶습니다."],
+        ["I know you've written a book about healthy eating habits, and I think our audience would benefit a lot from your expertise.", "건강한 식습관에 관한 책을 쓰신 것으로 알고 있는데, 저희 청중이 선생님의 전문 지식으로 많은 도움을 받을 것 같습니다."],
+        ["We would, of course, be happy to pay for all your transportation expenses for getting to and from the conference. Please give me a call to discuss the details. Thanks, Ms. Cheng, and have a nice day.", "물론 컨퍼런스 왕복 교통비는 저희가 기꺼이 전액 부담하겠습니다. 자세한 사항을 논의할 수 있게 전화 부탁드립니다. 감사합니다, 챙 씨. 좋은 하루 보내세요."]
+      ] },
+      { nums: [7, 9], clip: "Part4/Part4-1/clips/g3.mp3", conv: [
+        ["Thanks for calling Starryways, offering round-trip flights to over 150 destinations worldwide. Please hold and one of our reservation agents will be with you shortly.", "전 세계 150여 개 목적지로 왕복 항공편을 제공하는 스타리웨이즈에 전화 주셔서 감사합니다. 잠시 기다리시면 예약 상담원이 곧 연결됩니다."],
+        ["And if you haven't already, be sure to download the Starryways app to your smartphone. Did you know that Starryways has just added a new benefit? The app now lets you access the Starryways passenger lounge for complimentary snacks before your flight.", "아직 안 하셨다면 스마트폰에 스타리웨이즈 앱을 꼭 다운로드하세요. 스타리웨이즈에 새로운 혜택이 막 추가된 것을 아시나요? 이제 앱으로 탑승 전 무료 간식을 제공하는 스타리웨이즈 승객 라운지를 이용하실 수 있습니다."],
+        ["Thank you for continuing to hold. Make sure to have your confirmation number ready to give to the agent.", "계속 기다려 주셔서 감사합니다. 상담원에게 알려줄 예약 확인 번호를 준비해 주세요."]
+      ] },
+      { nums: [10, 12], clip: "Part4/Part4-1/clips/g4.mp3", conv: [
+        ["Hi, Ms. Zhang. My name is Maria Casella and I'm calling from Savor Magazine. Yesterday, I visited your food truck and had the kimchi tacos you made. Your recipe is delicious.", "안녕하세요, 장 씨. 저는 세이버 매거진의 마리아 카셀라입니다. 어제 운영하시는 푸드트럭에 가서 만드신 김치 타코를 먹었어요. 레시피가 정말 맛있더라고요."],
+        ["The reason why I'm calling is to invite you to participate in the Best Food on Wheels competition. Every year, our magazine hosts this citywide event to recognize and promote food truck operators like yourself.", "전화드린 이유는 '베스트 푸드 온 휠스' 대회에 참가하시도록 초대하고 싶어서예요. 매년 저희 잡지는 사장님 같은 푸드트럭 운영자들을 알리고 홍보하기 위해 시 전역 규모의 이 행사를 개최합니다."],
+        ["This would be a great opportunity for you to promote your business as you'll get a lot of great publicity. I've emailed you details about the event. And just so you know, the entry fee will be waived if you register by May 1st.", "홍보 효과가 커서 사업을 알릴 좋은 기회가 될 거예요. 행사 세부 정보는 이메일로 보내드렸어요. 그리고 참고로 5월 1일까지 등록하시면 참가비가 면제됩니다."]
+      ] },
+      { nums: [13, 15], clip: "Part4/Part4-1/clips/g5.mp3", conv: [
+        ["Hi, this is Magali from Wavedale Community Center returning your call about the kickboxing classes that we offer.", "안녕하세요, 웨이브데일 주민센터의 마갈리입니다. 저희가 제공하는 킥복싱 수업에 대한 문의 전화에 회신드려요."],
+        ["The classes are held at the Community Center Monday through Friday at 6 in the evening. The instructor closes the doors at 6 o'clock, so you'll want to keep that in mind.", "수업은 주민센터에서 월요일부터 금요일까지 저녁 6시에 열립니다. 강사가 6시 정각에 문을 닫으니 그 점을 유의하세요."],
+        ["And about pricing, classes are free if you're a resident of the city of Wavedale. For non-residents, it's $10 per class. Hope to see you there.", "가격은, 웨이브데일 시 주민이라면 수업이 무료입니다. 비거주자는 수업당 10달러예요. 그럼 뵙기를 바랄게요."]
+      ] },
+      { nums: [16, 18], clip: "Part4/Part4-1/clips/g6.mp3", conv: [
+        ["Hi, Aaron. I just got out of my meeting with Janet Lin from product development.", "안녕하세요, 아론. 제가 방금 제품 개발과의 재닛 린과 회의를 마치고 나왔어요."],
+        ["She liked our design for the company's new line of raincoats, but unfortunately, she wants us to use different colors than what we proposed.", "재닛이 회사의 새 레인코트에 대한 우리 디자인을 마음에 들어 했지만, 아쉽게도 우리가 제안한 것과는 다른 색깔들을 사용하길 원하시네요."],
+        ["I tried my best to convince her that a fresh, new look was needed, but she insisted on a more traditional approach.", "신선하고도 새로운 모습이 필요하다는 점을 설득시키려고 최선을 다했지만, 재닛은 좀 더 전통적인 접근을 고집하셨어요."],
+        ["There wasn't much more I could do. You know... she's the head of the department.", "제가 할 수 있는 게 많지 않았어요. 아시겠지만... 재닛이 부서장이잖아요."],
+        ["Anyway, I'm back at my desk now, so I'm going to find a time on our calendars tomorrow when we can get together and start on these changes.", "어쨌든 지금 제가 제 자리로 돌아왔으니까, 만나서 이런 변경 작업을 시작할 수 있도록 내일 일정을 한번 잡아 볼게요."]
+      ] },
+      { nums: [19, 21], clip: "Part4/Part4-1/clips/g7.mp3", img: "Part4/Part4-1/19-21번 문제 이미지.jpg", conv: [
+        ["Hello, Mr. Park. This is Marcela Lopez. I'm calling to let you know that we've reviewed your application materials for the open position on our company's legal team.", "안녕하세요, 박 씨. 저는 마르셀라 로페즈입니다. 저희 회사 법무팀의 공석에 지원하신 서류를 검토했다는 것을 알려 드리기 위해 전화 드립니다."],
+        ["We liked what we saw on your résumé. In fact, many of our lawyers have similar backgrounds. Anyway, we'd like you to come in for an interview.", "저희는 선생님의 이력서에서 좋은 인상을 받았습니다. 사실 저희 변호사들 중 많은 분들이 비슷한 경력을 가지고 계세요. 어쨌든, 면접을 보러 와 주셨으면 합니다."],
+        ["Our office is located on the third floor of the Kumar Tower.", "저희 사무실은 쿠마르 타워 3층에 위치해 있습니다."],
+        ["The hiring team could meet with you either on Thursday at nine A.M. or at one P.M. on Friday. Could you please call me back to let me know which of those options works best for you? Thank you.", "채용팀에서 목요일 오전 9시 또는 금요일 오후 1시 중에서 뵐 수 있을 것 같습니다. 이 두 가지 옵션 중 어느 쪽이 괜찮으신지 제게 다시 전화주시겠어요? 감사합니다."]
+      ] }
+    ],
+    questions: [
+      { num: 1,  answer: "C", qEn: "Where does the speaker most likely work?", qKo: "화자는 어디에서 일하겠는가?",
+        script: [
+          ["A", "At a lawyer's office", "법률 사무소"],
+          ["B", "At a hardware store", "철물점"],
+          ["C", "At an electronics store", "전자제품 매장"],
+          ["D", "At a shipping company", "운송 회사"]
+        ] },
+      { num: 2,  answer: "A", qEn: "What does the speaker say about this weekend?", qKo: "화자는 이번 주말에 대해 뭐라고 말하는가?",
+        script: [
+          ["A", "A business will be closed.", "가게가 문을 닫을 것이다."],
+          ["B", "An appointment will be required.", "예약이 필요할 것이다."],
+          ["C", "A sale will begin.", "세일이 시작될 것이다."],
+          ["D", "An order will arrive.", "주문품이 도착할 것이다."]
+        ] },
+      { num: 3,  answer: "D", qEn: "According to the speaker, what is the business offering?", qKo: "화자에 따르면 업체는 무엇을 제공하고 있는가?",
+        script: [
+          ["A", "A consultation by telephone", "전화 상담"],
+          ["B", "A personalized gift", "맞춤형 선물"],
+          ["C", "A discount coupon", "할인 쿠폰"],
+          ["D", "An extended warranty", "연장 보증"]
+        ] },
+      { num: 4,  answer: "A", qEn: "What is the purpose of the message?", qKo: "메시지의 목적은 무엇인가?",
+        script: [
+          ["A", "To invite the listener to an event", "청자를 행사에 초대하려고"],
+          ["B", "To follow up on a job application", "입사 지원 후속 연락을 하려고"],
+          ["C", "To discuss an upcoming publication", "출간 예정 도서를 논의하려고"],
+          ["D", "To advertise a professional organization", "전문 단체를 홍보하려고"]
+        ] },
+      { num: 5,  answer: "B", qEn: "What is Lisa Cheng's area of expertise?", qKo: "리사 챙의 전문 분야는 무엇인가?",
+        script: [
+          ["A", "Social media marketing", "소셜 미디어 마케팅"],
+          ["B", "Diet and nutrition", "식이요법과 영양"],
+          ["C", "Hospital management", "병원 경영"],
+          ["D", "Urban planning", "도시 계획"]
+        ] },
+      { num: 6,  answer: "D", qEn: "What does the speaker offer to do?", qKo: "화자는 무엇을 해주겠다고 하는가?",
+        script: [
+          ["A", "Share some research data", "연구 데이터 공유하기"],
+          ["B", "Create an advertisement", "광고 만들기"],
+          ["C", "Contact a colleague", "동료에게 연락하기"],
+          ["D", "Pay for travel costs", "교통비 지불하기"]
+        ] },
+      { num: 7,  answer: "D", qEn: "What type of business is Starry Ways?", qKo: "스타리웨이즈는 어떤 종류의 업체인가?",
+        script: [
+          ["A", "A tour company", "여행사"],
+          ["B", "A car service", "차량 서비스"],
+          ["C", "A bus line", "버스 회사"],
+          ["D", "An airline", "항공사"]
+        ] },
+      { num: 8,  answer: "C", qEn: "According to the speaker, what new benefit is available with the mobile app?", qKo: "화자에 따르면 모바일 앱으로 어떤 새 혜택을 이용할 수 있는가?",
+        script: [
+          ["A", "Early boarding", "우선 탑승"],
+          ["B", "Luggage tracking", "수하물 추적"],
+          ["C", "Lounge access", "라운지 이용"],
+          ["D", "Travel advice", "여행 조언"]
+        ] },
+      { num: 9,  answer: "A", qEn: "According to the speaker, what information should the listener be ready to provide?", qKo: "화자에 따르면 청자는 어떤 정보를 제공할 준비를 해야 하는가?",
+        script: [
+          ["A", "A confirmation number", "예약 확인 번호"],
+          ["B", "A credit card number", "신용카드 번호"],
+          ["C", "The name of a traveler", "여행자의 이름"],
+          ["D", "The name of a destination", "목적지의 이름"]
+        ] },
+      { num: 10, answer: "B", qEn: "Who most likely is the listener?", qKo: "청자는 누구이겠는가?",
+        script: [
+          ["A", "A photographer", "사진작가"],
+          ["B", "A chef", "요리사"],
+          ["C", "A food critic", "음식 평론가"],
+          ["D", "A musician", "음악가"]
+        ] },
+      { num: 11, answer: "B", qEn: "What is the purpose of the speaker's call?", qKo: "화자가 전화한 목적은 무엇인가?",
+        script: [
+          ["A", "To offer the listener a magazine subscription", "잡지 구독을 제안하려고"],
+          ["B", "To invite the listener to participate in a competition", "대회 참가를 권유하려고"],
+          ["C", "To schedule an interview for an article", "기사 인터뷰 일정을 잡으려고"],
+          ["D", "To request a donation for an event", "행사 기부를 요청하려고"]
+        ] },
+      { num: 12, answer: "C", qEn: "What does the speaker say will happen until May 1?", qKo: "화자는 5월 1일까지 무슨 일이 있을 것이라고 말하는가?",
+        script: [
+          ["A", "A Web site will be under construction.", "웹사이트가 공사 중일 것이다."],
+          ["B", "A venue will be available.", "장소를 이용할 수 있을 것이다."],
+          ["C", "A fee will be waived.", "요금(참가비)이 면제될 것이다."],
+          ["D", "An employee will be out of the office.", "직원이 부재중일 것이다."]
+        ] },
+      { num: 13, answer: "D", qEn: "Where does the speaker work?", qKo: "화자는 어디에서 일하는가?",
+        script: [
+          ["A", "At a cooking school", "요리 학교"],
+          ["B", "At a university", "대학교"],
+          ["C", "At a botanical garden", "식물원"],
+          ["D", "At a community center", "주민센터"]
+        ] },
+      { num: 14, answer: "A", qEn: "What does the speaker imply when she says, \"The instructor closes the doors at six o'clock\"?", qKo: "화자가 \"강사가 6시 정각에 문을 닫아요\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "It is important to arrive to class on time.", "수업에 제시간에 도착하는 것이 중요하다."],
+          ["B", "It is safe to store personal items in the classroom.", "교실에 개인 물품을 보관해도 안전하다."],
+          ["C", "A passcode is required for entry to the class.", "수업 입장에 비밀번호가 필요하다."],
+          ["D", "A class is very popular.", "수업이 매우 인기 있다."]
+        ] },
+      { num: 15, answer: "D", qEn: "Who is eligible for free classes?", qKo: "누가 무료 수업 대상인가?",
+        script: [
+          ["A", "Guests of a local hotel", "지역 호텔 투숙객"],
+          ["B", "Children under the age of ten", "10세 미만 어린이"],
+          ["C", "Volunteers", "자원봉사자"],
+          ["D", "City residents", "시 주민"]
+        ] },
+      { num: 16, answer: "B", qEn: "What did the speaker discuss with Janet Lin?", qKo: "화자는 재닛 린과 무엇을 논의했는가?",
+        script: [
+          ["A", "A hiring plan", "채용 계획"],
+          ["B", "A product design", "제품 디자인"],
+          ["C", "A supply order", "물품 주문"],
+          ["D", "A travel itinerary", "여행 일정"]
+        ] },
+      { num: 17, answer: "B", qEn: "What does the speaker imply when he says, \"she's the head of the department\"?", qKo: "화자가 \"그녀가 부서장이에요\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "He wants to introduce a staff member.", "직원을 소개하고 싶어 한다."],
+          ["B", "He cannot make the final decision.", "그가 최종 결정을 내릴 수 없다."],
+          ["C", "A job title is incorrect.", "직함이 잘못되었다."],
+          ["D", "A colleague is very successful.", "동료가 매우 성공했다."]
+        ] },
+      { num: 18, answer: "A", qEn: "What will the speaker most likely do next?", qKo: "화자는 다음에 무엇을 하겠는가?",
+        script: [
+          ["A", "Set up a meeting", "회의 잡기"],
+          ["B", "Check a catalog", "카탈로그 확인하기"],
+          ["C", "Complete a form", "양식 작성하기"],
+          ["D", "Call a client", "고객에게 전화하기"]
+        ] },
+      { num: 19, answer: "D", qEn: "What position did the listener most likely apply for?", qKo: "청자는 어떤 직책에 지원했겠는가?",
+        script: [
+          ["A", "Computer technician", "컴퓨터 기술자"],
+          ["B", "Sales representative", "영업 사원"],
+          ["C", "Journalist", "기자"],
+          ["D", "Lawyer", "변호사"]
+        ] },
+      { num: 20, answer: "C", qEn: "Look at the graphic. Which company does the speaker represent?", qKo: "시각 자료를 보시오. 화자는 어느 회사를 대표하는가?",
+        script: [
+          ["A", "Olson and Liu Associates", "올슨 앤 리우 어소시에이츠 (1층)"],
+          ["B", "Naftig Brothers Limited", "나프티그 브라더스 리미티드 (2층)"],
+          ["C", "Five Peaks Consulting", "파이브 픽스 컨설팅 (3층)"],
+          ["D", "Pantrel Solutions Incorporated", "팬트럴 솔루션스 (4층)"]
+        ] },
+      { num: 21, answer: "D", qEn: "Why does the speaker want the listener to return the call?", qKo: "화자는 왜 청자가 다시 전화해 주기를 바라는가?",
+        script: [
+          ["A", "To negotiate a salary", "급여를 협상하려고"],
+          ["B", "To verify a graduation date", "졸업 날짜를 확인하려고"],
+          ["C", "To provide additional references", "추가 추천인을 제공하려고"],
+          ["D", "To confirm an appointment time", "약속 시간을 확정하려고"]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  },
+  "Part 4-2": {
+    audio: "Part4/Part4-2/750_P4_06.mp3",
+    printed: true,
+    groupWord: "담화",
+    groups: [
+      { nums: [1, 3], clip: "Part4/Part4-2/clips/g1.mp3", conv: [
+        ["May I have everyone's attention please? Thank you for coming to the Science Theatre at the Brinkley Museum. And thank you all for waiting so patiently in line.", "여러분, 주목해 주시겠어요? 브링클리 박물관의 과학 상영관에 와주셔서 감사합니다. 그리고 줄을 서서 참을성 있게 기다려 주셔서 감사합니다."],
+        ["Unfortunately, we have just filled all the seats for the 3 o'clock showing of today's documentary film. However, there will be another showing at 5 o'clock and we usually have fewer attendees at that time. We hope you'll return then.", "아쉽게도 오늘 다큐멘터리 영화의 3시 상영은 방금 전 좌석이 모두 찼습니다. 하지만 5시에 한 번 더 상영이 있는데, 보통 그 시간에는 관람객이 더 적습니다. 그때 다시 와주시길 바랍니다."],
+        ["In the meantime, feel free to continue exploring the museum's exhibits, cafeteria and gift shop.", "그동안 박물관의 전시, 카페테리아, 기념품점을 자유롭게 둘러보세요."]
+      ] },
+      { nums: [4, 6], clip: "Part4/Part4-2/clips/g2.mp3", conv: [
+        ["Attention passengers, this is your airport gate attendant with some announcements.", "승객 여러분께 안내 말씀드립니다. 공항 게이트 직원입니다."],
+        ["First, if you are waiting for flight 421 to Singapore, I'm sorry to inform you that departure has been delayed because a routine maintenance check is taking longer than expected.", "먼저, 싱가포르행 421편을 기다리시는 승객분들께는 정기 정비 점검이 예상보다 오래 걸려서 출발이 지연되었음을 알려드리게 되어 죄송합니다."],
+        ["The good news is that the maintenance team has assured us that we'll be able to begin the boarding process for that flight in 20 minutes.", "좋은 소식은 정비팀이 20분 후에 해당 항공편의 탑승 수속을 시작할 수 있다고 확언했다는 것입니다."],
+        ["And second, if you are missing a pair of reading glasses, please come up to the gate counter to claim them. Thank you for your attention.", "두 번째로, 돋보기안경을 잃어버리신 분은 게이트 카운터로 오셔서 찾아가시기 바랍니다. 경청해 주셔서 감사합니다."]
+      ] },
+      { nums: [7, 9], clip: "Part4/Part4-2/clips/g3.mp3", conv: [
+        ["Okay, excellent. The projector's working now, so everyone please take a look at the screen. I'll start this executive team meeting by presenting some slides on possible future projects.", "네, 좋습니다. 이제 프로젝터가 작동하니 모두 화면을 봐주세요. 향후 가능한 프로젝트들에 대한 슬라이드를 보여드리면서 이번 임원 회의를 시작하겠습니다."],
+        ["Today we'll assign a priority to each project in order to determine the top three. Please prioritize using the following criteria. One, how complex the project is. And two, whether the project will make us more competitive.", "오늘은 상위 3개를 정하기 위해 각 프로젝트에 우선순위를 매길 겁니다. 다음 기준으로 우선순위를 정해 주세요. 첫째, 프로젝트가 얼마나 복잡한지. 둘째, 프로젝트가 우리 경쟁력을 높여줄지."],
+        ["Each proposal is a bit unconventional. As CEO, I feel it's important we head in a different direction than in the past. This is a pivotal time for us, a time to reassess.", "각 제안은 다소 파격적입니다. CEO로서 저는 우리가 과거와는 다른 방향으로 나아가는 것이 중요하다고 생각합니다. 지금은 우리에게 중대한 시기이자 재평가의 시간입니다."],
+        ["Listen, change is not easy. However, our survival depends on adapting and being forward-thinking.", "들어보세요, 변화는 쉽지 않습니다. 하지만 우리의 생존은 적응하고 미래지향적으로 사고하는 데 달려 있습니다."]
+      ] },
+      { nums: [10, 12], clip: "Part4/Part4-2/clips/g4.mp3", conv: [
+        ["Nearly one hundred thousand campers and hikers visit our park each year. And as a result, many of our trails are overused and eroding.", "매년 거의 10만 명에 달하는 캠핑객들과 등산객들이 저희 공원을 방문합니다. 그리고 그 결과로, 많은 등산로가 과도하게 이용되어 침식되고 있습니다."],
+        ["We rely on volunteers like you to help maintain our trails so they can stay open to the public.", "저희는 대중에게 계속 개방할 수 있도록 등산로를 유지하는 데 여러분과 같은 자원봉사자의 도움에 의존하고 있습니다."],
+        ["I'll be taking photographs during the day to share on the park's social media accounts. These kinds of publications help us recruit volunteers for future projects.", "오늘 활동 중에 공원의 소셜 미디어 계정에 올릴 사진들을 촬영할 예정입니다. 이런 게시글들은 저희가 향후 프로젝트에 자원봉사자들을 모집하는 데 큰 도움이 됩니다."],
+        ["I'll pass out waivers right now. Please fill one out and return it if you don't mind us sharing your picture on social media.", "제가 지금 초상권 포기 각서를 나눠 드리겠습니다. 저희가 여러분의 사진을 소셜 미디어에 공유해도 괜찮으시다면 작성해서 제출해주세요."]
+      ] },
+      { nums: [13, 15], clip: "Part4/Part4-2/clips/g5.mp3", conv: [
+        ["At last year's investors meeting, I had to report some losses. I predicted a difficult year for Richmond Chemical. Rising energy costs and unavailable supplies resulted in a negative return on your investments.", "작년 투자자 회의에서 저는 손실을 보고해야 했습니다. 리치몬드 케미컬에 힘든 한 해가 될 거라고 예측했었죠. 에너지 비용 상승과 자재 수급난으로 여러분의 투자 수익이 마이너스가 되었습니다."],
+        ["However, we found ways to innovate. Our research team developed new formulas using different ingredients. That enabled us to reduce our reliance on costly oil-based chemicals.", "하지만 우리는 혁신할 방법을 찾았습니다. 연구팀이 다른 원료를 사용한 새로운 배합(제조법)을 개발했습니다. 덕분에 값비싼 석유 기반 화학물질에 대한 의존도를 줄일 수 있었습니다."],
+        ["As a result, the company is stronger than it was two years ago. I think you'll be very pleased with the current profit margins, which I'll now outline in my presentation. Will someone dim the lights?", "그 결과 회사는 2년 전보다 더 튼튼해졌습니다. 지금부터 발표에서 설명드릴 현재 이익률에 매우 만족하실 거라고 생각합니다. 누가 조명 좀 어둡게 해주시겠어요?"]
+      ] },
+      { nums: [16, 18], clip: "Part4/Part4-2/clips/g6.mp3", conv: [
+        ["Welcome to the grand opening of our very first retail location. Until today, Stanford Hill Clothing only sold products online.", "저희의 첫 오프라인 매장 개점 행사에 오신 것을 환영합니다. 오늘까지 스탠퍼드 힐 의류는 온라인으로만 제품을 판매했습니다."],
+        ["While that business model helped us keep prices down, it also meant that customers couldn't walk into a store and feel our cashmere sweaters or try on a linen suit.", "그 사업 모델 덕분에 가격을 낮게 유지할 수 있었지만, 고객들이 매장에 들어와 캐시미어 스웨터를 만져보거나 린넨 정장을 입어볼 수 없다는 뜻이기도 했습니다."],
+        ["By opening this shop, we hope to bring our clothing to more customers. We know that online-only retail doesn't work for everyone, especially for shoppers who prefer to try on clothes before purchasing them.", "이 매장을 열어 더 많은 고객에게 저희 옷을 선보이고자 합니다. 온라인 전용 판매가 모두에게 맞지는 않다는 것을 알고 있습니다. 특히 구매 전에 옷을 입어보길 선호하는 분들에게는요."],
+        ["Please browse our collections and let an associate know if you'd like to try anything on.", "컬렉션을 둘러보시고, 입어보고 싶은 것이 있으면 직원에게 알려주세요."]
+      ] },
+      { nums: [19, 21], clip: "Part4/Part4-2/clips/g7.mp3", img: "Part4/Part4-2/19-21번 문제 이미지.jpg", conv: [
+        ["I know that we've been talking about how our design firm needs better data storage solutions for the logos and graphics we create.", "우리 디자인 회사가 제작하는 로고와 그래픽을 위해 더 나은 데이터 저장 솔루션이 필요하다는 이야기를 해온 것으로 압니다."],
+        ["Well, I've done some research, and there's a company that offers a cloud solution that I think would work for our data storage needs.", "그래서 제가 조사를 좀 해봤는데, 우리의 데이터 저장 요구에 맞을 만한 클라우드 솔루션을 제공하는 회사가 있어요."],
+        ["There are several options, but I suggest we try the one that will cost $8 per month for now. If our client base continues to grow, we may need to upgrade to the $20 plan, but for now, the less expensive option should be fine.", "몇 가지 옵션이 있는데, 일단은 월 8달러짜리를 써보는 걸 제안합니다. 고객층이 계속 늘어나면 20달러 요금제로 업그레이드해야 할 수도 있지만, 지금은 더 저렴한 옵션이면 충분할 거예요."],
+        ["Scott, when you meet with our accountant tomorrow, could you confirm that this is okay?", "스콧, 내일 회계사와 만날 때 이게 괜찮은지 확인해 줄래요?"]
+      ] }
+    ],
+    questions: [
+      { num: 1,  answer: "A", qEn: "Where is the announcement being made?", qKo: "안내 방송은 어디에서 이루어지고 있는가?",
+        script: [
+          ["A", "At a museum", "박물관"],
+          ["B", "At a university", "대학교"],
+          ["C", "At a furniture store", "가구점"],
+          ["D", "At a library", "도서관"]
+        ] },
+      { num: 2,  answer: "B", qEn: "What are the listeners waiting to attend?", qKo: "청자들은 무엇에 참석하려고 기다리고 있는가?",
+        script: [
+          ["A", "A lecture", "강연"],
+          ["B", "A film", "영화"],
+          ["C", "An exhibition", "전시회"],
+          ["D", "A concert", "콘서트"]
+        ] },
+      { num: 3,  answer: "C", qEn: "What does the speaker say about the 5 o'clock event?", qKo: "화자는 5시 행사에 대해 뭐라고 말하는가?",
+        script: [
+          ["A", "It is less expensive.", "더 저렴하다."],
+          ["B", "It is shorter.", "더 짧다."],
+          ["C", "It will be less crowded.", "덜 붐빌 것이다."],
+          ["D", "It will include refreshments.", "다과가 포함될 것이다."]
+        ] },
+      { num: 4,  answer: "A", qEn: "Where are the listeners?", qKo: "청자들은 어디에 있는가?",
+        script: [
+          ["A", "At an airport", "공항"],
+          ["B", "At a train station", "기차역"],
+          ["C", "At a boat harbor", "항구"],
+          ["D", "At a bus station", "버스 터미널"]
+        ] },
+      { num: 5,  answer: "D", qEn: "What is causing a delay?", qKo: "무엇이 지연을 일으키고 있는가?",
+        script: [
+          ["A", "Lost luggage", "분실된 수하물"],
+          ["B", "Bad weather", "악천후"],
+          ["C", "A late passenger", "늦은 승객"],
+          ["D", "A maintenance check", "정비 점검"]
+        ] },
+      { num: 6,  answer: "C", qEn: "According to the speaker, which item was found?", qKo: "화자에 따르면 어떤 물건이 발견되었는가?",
+        script: [
+          ["A", "A wallet", "지갑"],
+          ["B", "A mobile phone", "휴대폰"],
+          ["C", "A pair of glasses", "안경"],
+          ["D", "A book", "책"]
+        ] },
+      { num: 7,  answer: "C", qEn: "How does the speaker start the meeting?", qKo: "화자는 회의를 어떻게 시작하는가?",
+        script: [
+          ["A", "By playing a video", "영상을 틀면서"],
+          ["B", "By announcing some poll results", "설문 결과를 발표하면서"],
+          ["C", "By showing some slides", "슬라이드를 보여주면서"],
+          ["D", "By congratulating a team", "팀을 축하하면서"]
+        ] },
+      { num: 8,  answer: "B", qEn: "What is the main purpose of the meeting?", qKo: "회의의 주된 목적은 무엇인가?",
+        script: [
+          ["A", "To lower production costs", "생산 비용을 낮추려고"],
+          ["B", "To evaluate potential projects", "잠재적 프로젝트를 평가하려고"],
+          ["C", "To choose new suppliers", "새 공급업체를 선정하려고"],
+          ["D", "To assess the competition", "경쟁사를 분석하려고"]
+        ] },
+      { num: 9,  answer: "D", qEn: "Why does the speaker say, \"change is not easy\"?", qKo: "화자가 \"변화는 쉽지 않습니다\"라고 말한 이유는?",
+        script: [
+          ["A", "To recommend extending a timeline", "일정 연장을 권하려고"],
+          ["B", "To explain why a proposal was not approved", "제안이 승인되지 않은 이유를 설명하려고"],
+          ["C", "To express surprise", "놀라움을 표현하려고"],
+          ["D", "To address the listeners' doubts", "청자들의 의구심에 대응하려고"]
+        ] },
+      { num: 10, answer: "D", qEn: "What have the listeners volunteered to do?", qKo: "청자들은 무엇을 하기로 자원했는가?",
+        script: [
+          ["A", "Direct traffic", "교통 정리하기"],
+          ["B", "Set up camping sites", "캠핑장 설치하기"],
+          ["C", "Lead bird-watching tours", "조류 관찰 투어 인솔하기"],
+          ["D", "Perform maintenance tasks", "유지보수 작업하기"]
+        ] },
+      { num: 11, answer: "B", qEn: "What does the speaker want to do with some photographs?", qKo: "화자는 사진으로 무엇을 하고 싶어 하는가?",
+        script: [
+          ["A", "Make identification badges", "신분증(명찰) 만들기"],
+          ["B", "Post them on a Web site", "웹사이트(소셜 미디어)에 올리기"],
+          ["C", "Display them at a ceremony", "기념식에서 전시하기"],
+          ["D", "Include them in a handbook", "안내서에 싣기"]
+        ] },
+      { num: 12, answer: "D", qEn: "What will the speaker do next?", qKo: "화자는 다음에 무엇을 할 것인가?",
+        script: [
+          ["A", "Unlock a storage area", "창고 문 열기"],
+          ["B", "Take attendance", "출석 확인하기"],
+          ["C", "Provide some refreshments", "다과 제공하기"],
+          ["D", "Pass out some forms", "양식(동의서) 나눠주기"]
+        ] },
+      { num: 13, answer: "C", qEn: "Who most likely are the listeners?", qKo: "청자들은 누구이겠는가?",
+        script: [
+          ["A", "Politicians", "정치인"],
+          ["B", "Accountants", "회계사"],
+          ["C", "Investors", "투자자"],
+          ["D", "Scientists", "과학자"]
+        ] },
+      { num: 14, answer: "B", qEn: "According to the speaker, how did a company survive?", qKo: "화자에 따르면 회사는 어떻게 살아남았는가?",
+        script: [
+          ["A", "By reducing a workforce", "인력을 줄여서"],
+          ["B", "By adjusting product formulas", "제품 배합(제조법)을 조정해서"],
+          ["C", "By lowering prices", "가격을 낮춰서"],
+          ["D", "By renting a less expensive space", "더 저렴한 공간을 임대해서"]
+        ] },
+      { num: 15, answer: "C", qEn: "What will the speaker do next?", qKo: "화자는 다음에 무엇을 할 것인가?",
+        script: [
+          ["A", "Pass out copies of a report", "보고서 사본 나눠주기"],
+          ["B", "Check attendance", "출석 확인하기"],
+          ["C", "Give a presentation", "발표하기"],
+          ["D", "Introduce a guest speaker", "초청 연사 소개하기"]
+        ] },
+      { num: 16, answer: "D", qEn: "What kind of event is taking place?", qKo: "어떤 행사가 열리고 있는가?",
+        script: [
+          ["A", "An awards banquet", "시상식 연회"],
+          ["B", "A trade show", "무역 박람회"],
+          ["C", "A product launch", "제품 출시 행사"],
+          ["D", "A grand opening", "개점 행사"]
+        ] },
+      { num: 17, answer: "C", qEn: "Why did a company make a change?", qKo: "회사는 왜 변화를 주었는가?",
+        script: [
+          ["A", "To cut costs", "비용을 줄이려고"],
+          ["B", "To improve productivity", "생산성을 높이려고"],
+          ["C", "To attract new customers", "새 고객을 유치하려고"],
+          ["D", "To comply with new regulations", "새 규정을 준수하려고"]
+        ] },
+      { num: 18, answer: "B", qEn: "Why should the listeners speak to an associate?", qKo: "청자들은 왜 직원에게 말해야 하는가?",
+        script: [
+          ["A", "To submit an application", "신청서를 제출하려고"],
+          ["B", "To try on some merchandise", "상품을 입어보려고"],
+          ["C", "To sign up for some training", "교육에 등록하려고"],
+          ["D", "To get a discount coupon", "할인 쿠폰을 받으려고"]
+        ] },
+      { num: 19, answer: "A", qEn: "Where do the listeners most likely work?", qKo: "청자들은 어디에서 일하겠는가?",
+        script: [
+          ["A", "At a graphic design firm", "그래픽 디자인 회사"],
+          ["B", "At a bank", "은행"],
+          ["C", "At a technical school", "기술 학교"],
+          ["D", "At an electronics store", "전자제품 매장"]
+        ] },
+      { num: 20, answer: "B", qEn: "Look at the graphic. Which option does the speaker recommend?", qKo: "시각 자료를 보시오. 화자는 어떤 옵션을 추천하는가?",
+        script: [
+          ["A", "Option 1", "옵션 1 (5GB · 무료)"],
+          ["B", "Option 2", "옵션 2 (2TB · 월 $8)"],
+          ["C", "Option 3", "옵션 3 (6TB · 월 $20)"],
+          ["D", "Option 4", "옵션 4 (10TB · 월 $35)"]
+        ] },
+      { num: 21, answer: "A", qEn: "What will Scott do at a meeting tomorrow?", qKo: "스콧은 내일 회의에서 무엇을 할 것인가?",
+        script: [
+          ["A", "Confirm available funds", "가용 자금 확인하기"],
+          ["B", "Prepare for an audit", "감사 준비하기"],
+          ["C", "Demonstrate some software", "소프트웨어 시연하기"],
+          ["D", "Review some sales results", "매출 실적 검토하기"]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  },
+  "Part 4-3": {
+    audio: "Part4/Part4-3/750_P4_12.mp3",
+    printed: true,
+    groupWord: "담화",
+    groups: [
+      { nums: [1, 3], clip: "Part4/Part4-3/clips/g1.mp3", conv: [
+        ["Thanks for tuning in for tonight's business report. Today, Ashton Holt, a locally-based company with over 20 years of experience designing and manufacturing clothing, announced its much-anticipated merger with MW Incorporated.", "오늘 밤 비즈니스 리포트를 시청해 주셔서 감사합니다. 오늘, 20년 넘게 의류를 디자인하고 제조해온 지역 기업 애슈턴 홀트가 많은 기대를 모았던 MW 주식회사와의 합병을 발표했습니다."],
+        ["MW Incorporated will provide an online platform for selling Ashton Holt's clothing.", "MW 주식회사는 애슈턴 홀트의 의류를 판매할 온라인 플랫폼을 제공할 예정입니다."],
+        ["Make sure to tune in at this time tomorrow for an exclusive interview with the president of Ashton Holt. She'll give us more details about what this merger will mean to the local economy.", "내일 이 시간에 애슈턴 홀트 사장과의 단독 인터뷰가 있으니 꼭 시청해 주세요. 이번 합병이 지역 경제에 어떤 의미가 있을지 더 자세히 알려줄 예정입니다."]
+      ] },
+      { nums: [4, 6], clip: "Part4/Part4-3/clips/g2.mp3", conv: [
+        ["Do you love to cook, but find you are missing the appliances you need to prepare larger batches of food? Consider treating yourself to a new Chef 400 stand mixer.", "요리를 좋아하는데 많은 양의 음식을 준비하는 데 필요한 가전제품이 없으신가요? 새로운 셰프 400 스탠드 믹서를 장만해 보세요."],
+        ["Just like previous models of our high-quality stand mixer, the Chef 400 comes in six vibrant colors you can choose from to suit your personal style and decor.", "저희 고품질 스탠드 믹서의 이전 모델들과 마찬가지로, 셰프 400은 개인 스타일과 인테리어에 맞게 선택할 수 있는 여섯 가지 선명한 색상으로 나옵니다."],
+        ["But in addition to its usual features, this newest model has a larger mixing bowl, almost double the size in volume.", "하지만 기존 기능에 더해, 이 최신 모델은 용량이 거의 두 배에 달하는 더 큰 믹싱볼을 갖추고 있습니다."],
+        ["If you try the Chef 400 and decide it's not for you, remember that you can return it to us within 30 days to receive a full refund. Order yours today.", "셰프 400을 써보고 맞지 않는다고 생각되시면, 30일 이내에 반품하면 전액 환불받을 수 있다는 점을 기억하세요. 오늘 바로 주문하세요."]
+      ] },
+      { nums: [7, 9], clip: "Part4/Part4-3/clips/g3.mp3", conv: [
+        ["Watcheye News is here on location at the main subway station downtown. We just received details from transit officials about a plan to make a technological improvement to the system's stations.", "<와치아이 뉴스>는 현재 시내 주요 지하철역 현장에 나와 있습니다. 저희는 방금 교통 당국으로부터 지하철역 기술 개선 계획에 관한 내용을 전달받았습니다."],
+        ["According to officials, five stations will receive updated wireless Internet technology, which will benefit all metro patrons. The new wireless technology will improve coverage throughout the system's stations—as well as in tunnels.", "관계자들에 따르면, 다섯 개 역에 업데이트된 무선 인터넷 기술이 도입될 것이며, 이는 모든 지하철 이용객들에게 혜택을 줄 것입니다. 새로운 무선 기술은 지하철역 전역은 물론 터널 내에서도 서비스 범위를 향상시킬 예정입니다."],
+        ["For more information on this plan and other improvement efforts, system officials encourage interested citizens to attend monthly board meetings either in person or by joining online.", "이 계획 및 기타 개선 노력에 대한 더 많은 정보를 위해, 시스템 관계자들은 관심 있는 시민들이 월간 이사회에 직접 참석하거나 온라인으로 참여할 것을 권장하고 있습니다."]
+      ] },
+      { nums: [10, 12], clip: "Part4/Part4-3/clips/g4.mp3", conv: [
+        ["I'd like to start today's podcast with a personal story. As you know, I facilitate workshops for a living. I honed the skill of facilitation over a long period of time.", "오늘 팟캐스트는 개인적인 이야기로 시작하고 싶어요. 아시다시피 저는 워크숍 진행을 직업으로 하고 있습니다. 오랜 시간에 걸쳐 진행 기술을 갈고닦았죠."],
+        ["I remember one early workshop I was leading where I had carefully designed every aspect down to the minute. I had planned everything except the question and answer session. Then we went seriously overtime.", "초창기에 진행했던 한 워크숍이 기억나는데, 모든 부분을 분 단위까지 꼼꼼하게 설계했었어요. 질의응답 시간만 빼고 전부 계획했던 거죠. 그러고는 시간을 심각하게 초과했어요."],
+        ["The importance of planning for every aspect of a workshop is the subject of Amanda Ross's brilliant new book. I've invited her on the show today to share her expertise.", "워크숍의 모든 측면을 계획하는 것의 중요성이 바로 아만다 로스의 훌륭한 신간의 주제입니다. 오늘 그녀를 방송에 초대해 전문 지식을 들어보려고 합니다."]
+      ] },
+      { nums: [13, 15], clip: "Part4/Part4-3/clips/g5.mp3", conv: [
+        ["Good morning. This is Rebecca Melanie in the weather room with your hourly weather report. We'll have more unseasonably warm weather today. Although spring is still a month away, we can expect sunny skies and temperatures approaching 20 degrees Celsius in the city today.", "좋은 아침입니다. 기상실의 레베카 멜라니가 매시간 날씨를 전해드립니다. 오늘도 계절에 맞지 않게 따뜻한 날씨가 이어지겠습니다. 봄이 아직 한 달 남았지만, 오늘 시내는 맑은 하늘에 기온이 섭씨 20도에 육박하겠습니다."],
+        ["The National Weather Center reports that a high-pressure system over the western part of the country is keeping the usual winter rains and clouds well to the north of us.", "국립기상센터에 따르면 나라 서쪽에 자리한 고기압이 평소의 겨울비와 구름을 우리 지역 북쪽 멀리 머물게 하고 있습니다."],
+        ["Things are likely to change early next week, though. The Weather Center expects the high-pressure system to begin breaking down on Sunday. The clouds will return, and high temperatures should drop to around 12 degrees, which is right around average for this time of the year.", "하지만 다음 주 초에는 상황이 바뀔 것으로 보입니다. 기상센터는 일요일부터 고기압이 약해지기 시작할 것으로 예상합니다. 구름이 다시 몰려오고 최고 기온은 이맘때 평균 수준인 12도 안팎으로 떨어지겠습니다."],
+        ["It's 7 o'clock now. We'll have the next weather report in exactly one hour, along with a daily traffic update.", "지금은 7시입니다. 정확히 한 시간 후에 일일 교통 정보와 함께 다음 날씨를 전해드리겠습니다."]
+      ] },
+      { nums: [16, 18], clip: "Part4/Part4-3/clips/g6.mp3", conv: [
+        ["If your office needs renovating, why not choose a company you trust? Young Brothers is the number one commercial remodeling contractor in the Springbridge area. From reception areas to offices, conference rooms and amenities, we do it all.", "사무실 리모델링이 필요하다면, 믿을 수 있는 회사를 선택하세요. 영 브라더스는 스프링브리지 지역 최고의 상업 공간 리모델링 업체입니다. 리셉션 공간부터 사무실, 회의실, 편의시설까지 전부 다 합니다."],
+        ["Not only do we offer complete design and build services, but we also guarantee long-term quality. Unlike our competitors, we offer a free one-year inspection program. One year after the project is completed, we will come check that everything in your renovated space is working as it should.", "완전한 설계·시공 서비스를 제공할 뿐 아니라 장기적인 품질도 보장합니다. 경쟁사들과 달리 저희는 무료 1년 점검 프로그램을 제공합니다. 공사 완료 1년 후, 리모델링된 공간의 모든 것이 제대로 작동하는지 확인하러 방문합니다."],
+        ["Visit our website at www.youngbrothers.com to see pictures of other commercial spaces we've remodeled. You're sure to be impressed by the creativity and quality of our past projects. No matter the workspace, Young Brothers has a solution for you.", "저희가 리모델링한 다른 상업 공간들의 사진을 보시려면 웹사이트 www.youngbrothers.com을 방문하세요. 과거 프로젝트의 창의성과 품질에 분명 감탄하실 겁니다. 어떤 업무 공간이든, 영 브라더스에게 해결책이 있습니다."]
+      ] },
+      { nums: [19, 21], clip: "Part4/Part4-3/clips/g7.mp3", img: "Part4/Part4-3/19-21번 문제 이미지.jpg", conv: [
+        ["Welcome to our Savvy Consumers segment, where we report on tips our News 4 viewers can use to make better purchasing decisions. With summer approaching, many of us have travel in mind, so today we'll share advice for booking flights.", "뉴스 4 시청자 여러분이 더 나은 구매 결정을 내리는 데 활용할 수 있는 팁을 전해드리는 '현명한 소비자' 코너에 오신 것을 환영합니다. 여름이 다가오면서 많은 분들이 여행을 계획하고 계실 텐데요, 오늘은 항공권 예약에 관한 조언을 나눠드리겠습니다."],
+        ["Now, when searching for flights online, you might assume that direct, non-stop flights would cost more than flights with layovers. But we compared flights from New York to Los Angeles, and one airline's flight was both non-stop and less expensive than most other flights.", "온라인에서 항공편을 검색할 때, 직항이 경유 항공편보다 비쌀 거라고 생각하기 쉽습니다. 하지만 뉴욕에서 로스앤젤레스로 가는 항공편들을 비교해 봤더니, 한 항공사의 항공편은 직항이면서도 대부분의 다른 항공편보다 저렴했습니다."],
+        ["Also, be aware that some airlines are now offering free meals for flights purchased using the airline's mobile application.", "또한 일부 항공사는 항공사 모바일 앱으로 구매한 항공편에 무료 기내식을 제공하고 있다는 점도 알아두세요."]
+      ] }
+    ],
+    questions: [
+      { num: 1,  answer: "B", qEn: "What is the purpose of the broadcast?", qKo: "방송의 목적은 무엇인가?",
+        script: [
+          ["A", "To advertise a store's grand opening", "매장 개점을 광고하려고"],
+          ["B", "To announce a business merger", "기업 합병을 알리려고"],
+          ["C", "To discuss a new product", "신제품을 논의하려고"],
+          ["D", "To report on a change in regulations", "규정 변경을 보도하려고"]
+        ] },
+      { num: 2,  answer: "D", qEn: "What type of business is Ashton Holt?", qKo: "애슈턴 홀트는 어떤 종류의 기업인가?",
+        script: [
+          ["A", "A construction company", "건설 회사"],
+          ["B", "An interior design firm", "인테리어 디자인 회사"],
+          ["C", "An advertising agency", "광고 대행사"],
+          ["D", "A clothing company", "의류 회사"]
+        ] },
+      { num: 3,  answer: "A", qEn: "What does the speaker encourage listeners to do?", qKo: "화자는 청자들에게 무엇을 하라고 권하는가?",
+        script: [
+          ["A", "Listen to an interview", "인터뷰 듣기"],
+          ["B", "Visit a Web site", "웹사이트 방문하기"],
+          ["C", "Apply for a job", "일자리에 지원하기"],
+          ["D", "Enter a contest", "대회에 참가하기"]
+        ] },
+      { num: 4,  answer: "C", qEn: "What is being advertised?", qKo: "무엇이 광고되고 있는가?",
+        script: [
+          ["A", "A computer accessory", "컴퓨터 액세서리"],
+          ["B", "An exercise machine", "운동 기구"],
+          ["C", "A kitchen appliance", "주방 가전"],
+          ["D", "A sewing machine", "재봉틀"]
+        ] },
+      { num: 5,  answer: "B", qEn: "According to the speaker, how has the product changed?", qKo: "화자에 따르면 제품은 어떻게 바뀌었는가?",
+        script: [
+          ["A", "It weighs less.", "무게가 더 가벼워졌다."],
+          ["B", "It has a larger capacity.", "용량이 더 커졌다."],
+          ["C", "It is available in a new color.", "새로운 색상으로 나온다."],
+          ["D", "Its settings are easier to adjust.", "설정 조절이 더 쉬워졌다."]
+        ] },
+      { num: 6,  answer: "A", qEn: "What does the speaker tell the listeners to remember?", qKo: "화자는 청자들에게 무엇을 기억하라고 말하는가?",
+        script: [
+          ["A", "A return policy", "반품 정책"],
+          ["B", "A release date", "출시일"],
+          ["C", "A store location", "매장 위치"],
+          ["D", "A discount offer", "할인 혜택"]
+        ] },
+      { num: 7,  answer: "D", qEn: "Where is the speaker?", qKo: "화자는 어디에 있는가?",
+        script: [
+          ["A", "At an airport", "공항"],
+          ["B", "At a museum", "박물관"],
+          ["C", "At a public library", "공공 도서관"],
+          ["D", "At a subway station", "지하철역"]
+        ] },
+      { num: 8,  answer: "C", qEn: "According to the speaker, how will customers benefit from an upgrade?", qKo: "화자에 따르면 업그레이드로 고객들은 어떤 혜택을 받는가?",
+        script: [
+          ["A", "Memberships will be renewed automatically.", "멤버십이 자동으로 갱신될 것이다."],
+          ["B", "Customers will be notified about schedule changes.", "고객들이 일정 변경을 통지받을 것이다."],
+          ["C", "Wireless Internet coverage will improve.", "무선 인터넷 범위가 개선될 것이다."],
+          ["D", "Customer wait times will decrease.", "고객 대기 시간이 줄어들 것이다."]
+        ] },
+      { num: 9,  answer: "A", qEn: "What are some listeners encouraged to do?", qKo: "일부 청자들은 무엇을 하도록 권장되는가?",
+        script: [
+          ["A", "Attend board meetings", "이사회에 참석하기"],
+          ["B", "Respond to a survey", "설문에 응답하기"],
+          ["C", "Read a report", "보고서 읽기"],
+          ["D", "Reserve tickets", "표 예약하기"]
+        ] },
+      { num: 10, answer: "A", qEn: "What does the speaker say he does for a living?", qKo: "화자는 자신의 직업이 무엇이라고 말하는가?",
+        script: [
+          ["A", "He leads workshops.", "워크숍을 진행한다."],
+          ["B", "He coaches sports.", "스포츠를 지도한다."],
+          ["C", "He designs buildings.", "건물을 설계한다."],
+          ["D", "He illustrates books.", "책에 삽화를 그린다."]
+        ] },
+      { num: 11, answer: "C", qEn: "What does the speaker imply when he says, \"we went seriously overtime\"?", qKo: "화자가 \"시간을 심각하게 초과했어요\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "He had been forced to start late.", "어쩔 수 없이 늦게 시작해야 했다."],
+          ["B", "He should have practiced more.", "연습을 더 했어야 했다."],
+          ["C", "He made a planning mistake.", "계획상의 실수를 했다."],
+          ["D", "He received some negative feedback.", "부정적인 피드백을 받았다."]
+        ] },
+      { num: 12, answer: "C", qEn: "What will the listeners most likely hear next?", qKo: "청자들은 다음에 무엇을 듣겠는가?",
+        script: [
+          ["A", "A listener's question", "청취자의 질문"],
+          ["B", "An advertisement", "광고"],
+          ["C", "An interview", "인터뷰"],
+          ["D", "A preview of the next episode", "다음 회차 예고"]
+        ] },
+      { num: 13, answer: "A", qEn: "What does the speaker suggest about today's weather?", qKo: "화자는 오늘 날씨에 대해 무엇을 시사하는가?",
+        script: [
+          ["A", "It will be unusually warm.", "이례적으로 따뜻할 것이다."],
+          ["B", "It will rain all day.", "하루 종일 비가 올 것이다."],
+          ["C", "It will cause traffic problems.", "교통 문제를 일으킬 것이다."],
+          ["D", "It will change later today.", "오늘 늦게 바뀔 것이다."]
+        ] },
+      { num: 14, answer: "B", qEn: "What will likely happen next week?", qKo: "다음 주에 무슨 일이 있을 것 같은가?",
+        script: [
+          ["A", "Spring will begin.", "봄이 시작될 것이다."],
+          ["B", "Temperatures will decrease.", "기온이 떨어질 것이다."],
+          ["C", "The weather center will close.", "기상센터가 문을 닫을 것이다."],
+          ["D", "The days will be very sunny.", "날씨가 매우 화창할 것이다."]
+        ] },
+      { num: 15, answer: "D", qEn: "When will the next weather report take place?", qKo: "다음 일기예보는 언제 있을 것인가?",
+        script: [
+          ["A", "In twelve minutes", "12분 후"],
+          ["B", "In twenty minutes", "20분 후"],
+          ["C", "In a half hour", "30분 후"],
+          ["D", "In an hour", "1시간 후"]
+        ] },
+      { num: 16, answer: "D", qEn: "What type of business is being advertised?", qKo: "어떤 종류의 업체가 광고되고 있는가?",
+        script: [
+          ["A", "A Web-design firm", "웹 디자인 회사"],
+          ["B", "A hardware store", "철물점"],
+          ["C", "A real estate agency", "부동산 중개소"],
+          ["D", "A remodeling company", "리모델링 회사"]
+        ] },
+      { num: 17, answer: "C", qEn: "What special service does the business offer?", qKo: "업체는 어떤 특별 서비스를 제공하는가?",
+        script: [
+          ["A", "Free installation", "무료 설치"],
+          ["B", "A flexible payment plan", "유연한 결제 방식"],
+          ["C", "A follow-up inspection", "사후 점검"],
+          ["D", "Emergency repairs", "긴급 수리"]
+        ] },
+      { num: 18, answer: "A", qEn: "What does the speaker suggest listeners do online?", qKo: "화자는 청자들에게 온라인에서 무엇을 하라고 제안하는가?",
+        script: [
+          ["A", "View work samples", "작업 샘플(사진) 보기"],
+          ["B", "Leave comments", "댓글 남기기"],
+          ["C", "Request a consultation", "상담 요청하기"],
+          ["D", "Find a business location", "업체 위치 찾기"]
+        ] },
+      { num: 19, answer: "C", qEn: "What is the main topic of the broadcast segment?", qKo: "방송 코너의 주요 주제는 무엇인가?",
+        script: [
+          ["A", "Inexpensive summer activities", "저렴한 여름 활동"],
+          ["B", "Popular tourist destinations", "인기 관광지"],
+          ["C", "Helpful purchasing tips", "유용한 구매 팁"],
+          ["D", "Unknown local restaurants", "잘 알려지지 않은 지역 식당"]
+        ] },
+      { num: 20, answer: "D", qEn: "Look at the graphic. Which airline does the speaker point out?", qKo: "시각 자료를 보시오. 화자는 어느 항공사를 언급하는가?",
+        script: [
+          ["A", "Pinyon Airlines", "피니언 항공 (직항 · $450)"],
+          ["B", "Rondo Air", "론도 에어 (경유 1회 · $400)"],
+          ["C", "Blaze Airways", "블레이즈 항공 (경유 2회 · $350)"],
+          ["D", "Vela Air", "벨라 에어 (직항 · $375 — 직항이면서 저렴)"]
+        ] },
+      { num: 21, answer: "D", qEn: "According to the speaker, how can the listeners receive free meals?", qKo: "화자에 따르면 청자들은 어떻게 무료 기내식을 받을 수 있는가?",
+        script: [
+          ["A", "By redeeming an online coupon", "온라인 쿠폰을 사용해서"],
+          ["B", "By joining a frequent-fliers club", "상용 고객 클럽에 가입해서"],
+          ["C", "By applying for a travel rewards credit card", "여행 적립 신용카드를 신청해서"],
+          ["D", "By booking travel using a mobile application", "모바일 앱으로 여행을 예약해서"]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  },
+  "Part 4-4": {
+    audio: "Part4/Part4-4/750_P4_13.mp3",
+    printed: true,
+    groupWord: "담화",
+    groups: [
+      { nums: [71, 73], clip: "Part4/Part4-4/clips/g1.mp3", conv: [
+        ["As most of you already know, we're starting construction next month on a new hospital wing dedicated to pediatric medicine. It'll include 20 rooms and a teaching center for doctors in training.", "대부분 이미 아시겠지만, 다음 달에 소아과 전용 병원 신관 공사를 시작합니다. 병실 20개와 수련의를 위한 교육 센터가 들어설 예정입니다."],
+        ["The board of directors has decided to tear down the north parking garage, which has been reserved for the doctors and nurses.", "이사회는 의사와 간호사 전용이었던 북쪽 주차장을 철거하기로 결정했습니다."],
+        ["To lessen the burden on you, the hospital plans to offer free shuttle service to and from the garage on 15th Street, 24 hours a day.", "여러분의 부담을 덜기 위해, 병원은 15번가 주차장을 오가는 무료 셔틀 서비스를 24시간 제공할 계획입니다."]
+      ] },
+      { nums: [74, 76], clip: "Part4/Part4-4/clips/g2.mp3", conv: [
+        ["Attention customers. Thanks for waiting patiently to take part in our two-day sales event. Please form a line here by the front door and then I'll unlock the door so you can start shopping.", "고객 여러분께 알립니다. 이틀간의 세일 행사에 참여하려고 참을성 있게 기다려 주셔서 감사합니다. 정문 옆 이곳에 줄을 서 주시면, 제가 문을 열어 쇼핑을 시작하실 수 있게 하겠습니다."],
+        ["I have some information from the manager. Because the delivery truck was delayed, we are currently out of the Wired X flat-screen televisions. All other brands are still available, though.", "매니저님에게 받은 정보가 있습니다. 배송 트럭이 지연되어 현재 와이어드 X 평면 TV는 재고가 없습니다. 다만 다른 브랜드는 모두 구매 가능합니다."],
+        ["And as a reminder, this sales event lasts until the end of the day tomorrow.", "그리고 다시 알려드리면, 이번 세일 행사는 내일 영업 종료 시까지 계속됩니다."]
+      ] },
+      { nums: [77, 79], clip: "Part4/Part4-4/clips/g3.mp3", conv: [
+        ["Hi Tariq, this is Raya. I've been thinking about what you said about making the hotel lobby more appealing, and I have an idea. What do you think about buying some new artwork to hang there?", "안녕하세요 타리크, 라야예요. 호텔 로비를 더 매력적으로 만들자고 하신 말씀을 계속 생각해 봤는데, 아이디어가 하나 있어요. 로비에 걸 새 미술품을 사는 건 어떻게 생각하세요?"],
+        ["Some nice paintings or photographs would really improve the hotel's atmosphere. We could hire a local artist or photographer to create something for the space. It might be expensive, though.", "멋진 그림이나 사진 몇 점이면 호텔 분위기가 정말 좋아질 거예요. 지역 화가나 사진작가를 고용해서 그 공간을 위한 작품을 만들게 할 수도 있고요. 다만 비쌀 수는 있어요."],
+        ["I'd love to discuss this soon. My shift ends at 4 o'clock.", "조만간 이 이야기를 나누고 싶어요. 제 근무는 4시에 끝나요."]
+      ] },
+      { nums: [80, 82], clip: "Part4/Part4-4/clips/g4.mp3", conv: [
+        ["And for a limited time only, when you subscribe to Natural Earth magazine, you'll receive two free admission tickets to one of the many national parks our magazine supports.", "그리고 한정된 기간 동안, 내추럴 어스 잡지를 구독하시면 저희 잡지가 후원하는 여러 국립공원 중 한 곳의 무료 입장권 2매를 받으실 수 있습니다."],
+        ["You'll be able to see some of the most spectacular plants and animal species the world has to offer.", "세계에서 가장 장관을 이루는 식물과 동물 종들을 보실 수 있을 겁니다."],
+        ["So go to our website and type in the number 8632 to take advantage of this limited time offer.", "이 기간 한정 혜택을 누리시려면 저희 웹사이트에 가셔서 숫자 8632를 입력하세요."]
+      ] },
+      { nums: [83, 85], clip: "Part4/Part4-4/clips/g5.mp3", conv: [
+        ["This is Rajiv from Sun Mountain Greens. We're preparing the usual order of fruits and vegetables for your restaurant.", "선 마운틴 그린스의 라지브입니다. 귀하의 레스토랑을 위해 평소 주문대로 과일과 채소를 준비하고 있습니다."],
+        ["Your order's nearly ready, but there was a problem when I tried to run the credit card that we have on file for you. I'm afraid the payment was declined and couldn't be processed.", "주문이 거의 준비됐는데, 등록되어 있는 신용카드로 결제를 시도했을 때 문제가 있었습니다. 죄송하지만 결제가 거절되어 처리되지 못했습니다."],
+        ["Do you have another card that you'd like me to use, or do you want to pay cash on delivery? Please call me back to let me know.", "사용하실 다른 카드가 있으신가요, 아니면 배송 시 현금으로 지불하시겠어요? 다시 전화해서 알려주세요."],
+        ["Since you've been a customer for such a long time, you can still plan on receiving the order tomorrow as scheduled. I'm sure we'll figure everything out. Talk to you soon.", "오랜 고객이시니, 주문은 예정대로 내일 받으실 수 있습니다. 분명 다 잘 해결될 겁니다. 곧 통화해요."]
+      ] },
+      { nums: [86, 88], clip: "Part4/Part4-4/clips/g6.mp3", conv: [
+        ["The Transportation Department is proposing a multi-year plan to add six new stations to the railway system.", "교통부는 철도 시스템에 6개의 새 역을 추가하는 다년간의 계획을 제안하고 있습니다."],
+        ["This plan is causing city residents considerable concern because it could entail prolonged disruption to the existing train lines during implementation. It is worth keeping in mind, though, that the proposal hasn't been approved yet.", "이 계획은 시행 중에 기존 열차 노선의 장기간 운행 차질을 수반할 수 있어 시민들에게 상당한 우려를 낳고 있습니다. 하지만 이 제안이 아직 승인되지 않았다는 점은 염두에 둘 만합니다."],
+        ["Tune in at 7 this evening for our exclusive live interview with the Director of the Transportation Department. I'm sure our reporter will be asking some pointed questions.", "오늘 저녁 7시, 교통부 국장과의 단독 생방송 인터뷰를 시청해 주세요. 저희 기자가 날카로운 질문들을 던질 겁니다."]
+      ] },
+      { nums: [89, 91], clip: "Part4/Part4-4/clips/g7.mp3", conv: [
+        ["I wanted to give you all an update on the new software program we'll soon begin using here at the clinic. As you know, we're making this upgrade because our current software takes a long time to load, and that causes delays when we input our patients' information.", "곧 우리 클리닉에서 사용하기 시작할 새 소프트웨어 프로그램에 대한 소식을 전해드리려고 합니다. 아시다시피 현재 소프트웨어는 로딩이 오래 걸려서 환자 정보를 입력할 때 지연이 생기기 때문에 업그레이드하는 겁니다."],
+        ["Well, you'll be happy to know that the new software is very fast. But it's not software you're familiar with. I'd like to find time outside of our regular business hours for you to learn the basics.", "새 소프트웨어가 매우 빠르다는 걸 아시면 기쁘실 거예요. 하지만 여러분에게 익숙한 소프트웨어가 아닙니다. 정규 업무 시간 외에 기본 사용법을 배울 시간을 마련하고 싶어요."],
+        ["I'm passing around a calendar. Please write down which times you're available to come in.", "일정표를 돌리고 있습니다. 나오실 수 있는 시간을 적어주세요."]
+      ] },
+      { nums: [92, 94], clip: "Part4/Part4-4/clips/g8.mp3", conv: [
+        ["Before we end today's tour of the Art Museum, I'd like to tell you about an upcoming exhibit that will be opening in July. The exhibit is called International Jewels, and it will feature pieces by 50 well-known jewelry artists.", "오늘 미술관 투어를 마치기 전에, 7월에 개막할 예정인 전시에 대해 말씀드리고 싶습니다. '인터내셔널 주얼스'라는 전시로, 유명 주얼리 아티스트 50인의 작품이 전시될 예정입니다."],
+        ["This exhibit has already been shown in Rome, Paris, and London, and it has received excellent reviews. Plus, our gift shop is going to be selling affordable reproductions of some of the most prominent pieces of jewelry. These replicas have been especially made to be sold during this exhibit.", "이 전시는 이미 로마, 파리, 런던에서 열렸고 훌륭한 평가를 받았습니다. 또한 저희 기념품점에서는 가장 유명한 주얼리 작품들의 저렴한 복제품을 판매할 예정입니다. 이 복제품들은 이번 전시 기간에 판매하기 위해 특별히 제작되었습니다."],
+        ["So if you're interested in this unique exhibit, I encourage you to buy your tickets today, as we're expecting them to sell out quickly.", "이 특별한 전시에 관심이 있으시다면, 표가 빨리 매진될 것으로 예상되니 오늘 표를 구매하시기를 권합니다."]
+      ] },
+      { nums: [95, 97], clip: "Part4/Part4-4/clips/g9.mp3", img: "Part4/Part4-4/95-97번 문제 이미지.jpg", conv: [
+        ["Now that we've finished putting in the windows and doors, it's time to focus on the interior of the house. The electricians and the plumbers will be coming in tomorrow, so you all can have the day off while they get started on their work. You deserve the break.", "이제 창문과 문 설치를 마쳤으니 집 내부에 집중할 차례입니다. 내일은 전기 기사와 배관공들이 올 예정이니, 그들이 작업을 시작하는 동안 여러분은 모두 하루 쉬셔도 됩니다. 쉴 자격이 있어요."],
+        ["Once they're finished, we can plaster the walls and lay the flooring. That reminds me, I need to talk to the homeowners about the flooring in the bedrooms. They chose the most expensive product and I don't think they realize that'll put them over budget.", "그들이 끝나면 벽에 회반죽을 바르고 바닥재를 깔 수 있습니다. 그러고 보니 침실 바닥재에 대해 집주인들과 이야기해야겠네요. 가장 비싼 제품을 선택하셨는데, 그러면 예산을 초과하게 된다는 걸 모르시는 것 같아요."]
+      ] },
+      { nums: [98, 100], clip: "Part4/Part4-4/clips/g10.mp3", img: "Part4/Part4-4/98-100번 문제 이미지.jpg", conv: [
+        ["I have one final issue to discuss at today's staff meeting. I just handed out a graph summarizing our shoe store's annual sales data. And, well, I think this information is particularly interesting since we relocated to a different neighborhood this year.", "오늘 직원 회의에서 논의할 마지막 사안이 하나 있습니다. 방금 우리 신발 매장의 연간 판매 데이터를 요약한 그래프를 나눠드렸어요. 올해 다른 동네로 이전했기 때문에 이 정보가 특히 흥미롭다고 생각합니다."],
+        ["As you might have expected, the relocation decreased our sales significantly at first. During the quarter we moved, we experienced the lowest shoe sales of the entire year. That was largely because people in the new neighborhood didn't know about us.", "예상하셨겠지만, 이전 직후에는 매출이 크게 줄었습니다. 이사한 분기에는 연중 최저 신발 판매량을 기록했죠. 새 동네 사람들이 우리를 잘 몰랐던 것이 큰 이유였습니다."],
+        ["However, thanks to the newspaper advertisements and radio commercials we put out, business picked up quickly, and we ended the year by making a record number of sales.", "하지만 우리가 낸 신문 광고와 라디오 광고 덕분에 사업이 빠르게 회복됐고, 기록적인 판매량으로 한 해를 마무리했습니다."]
+      ] }
+    ],
+    questions: [
+      { num: 71, answer: "A", qEn: "What is the talk mainly about?", qKo: "담화는 주로 무엇에 관한 것인가?",
+        script: [
+          ["A", "A construction project", "건설 프로젝트"],
+          ["B", "A fund-raising event", "모금 행사"],
+          ["C", "A grant proposal", "보조금 제안서"],
+          ["D", "An anniversary party", "기념일 파티"]
+        ] },
+      { num: 72, answer: "B", qEn: "Who most likely are the listeners?", qKo: "청자들은 누구이겠는가?",
+        script: [
+          ["A", "Maintenance workers", "시설 관리 직원"],
+          ["B", "Medical staff", "의료진"],
+          ["C", "Patients", "환자"],
+          ["D", "Journalists", "기자"]
+        ] },
+      { num: 73, answer: "D", qEn: "According to the speaker, what will be provided at no cost?", qKo: "화자에 따르면 무엇이 무료로 제공될 것인가?",
+        script: [
+          ["A", "Professional development", "직무 능력 개발"],
+          ["B", "Internet access", "인터넷 접속"],
+          ["C", "Cafeteria lunches", "구내식당 점심"],
+          ["D", "Shuttle bus service", "셔틀버스 서비스"]
+        ] },
+      { num: 74, answer: "B", qEn: "Who most likely is the speaker?", qKo: "화자는 누구이겠는가?",
+        script: [
+          ["A", "A building inspector", "건물 검사관"],
+          ["B", "A store employee", "매장 직원"],
+          ["C", "A factory worker", "공장 근로자"],
+          ["D", "A truck driver", "트럭 운전사"]
+        ] },
+      { num: 75, answer: "A", qEn: "What information from the manager does the speaker share?", qKo: "화자는 매니저에게 받은 어떤 정보를 전하는가?",
+        script: [
+          ["A", "A product is unavailable.", "한 제품의 재고가 없다."],
+          ["B", "Some repairs are needed.", "수리가 필요하다."],
+          ["C", "Invoices will be mailed.", "송장이 우편으로 발송될 것이다."],
+          ["D", "Rain is expected.", "비가 예상된다."]
+        ] },
+      { num: 76, answer: "C", qEn: "What does the speaker remind the listeners about?", qKo: "화자는 청자들에게 무엇을 상기시키는가?",
+        script: [
+          ["A", "Business hours have changed.", "영업시간이 바뀌었다."],
+          ["B", "Job applications are accepted on Saturdays.", "입사 지원서는 토요일에 접수된다."],
+          ["C", "Tomorrow is the last day of an event.", "내일이 행사 마지막 날이다."],
+          ["D", "Deliveries take one week.", "배송은 일주일이 걸린다."]
+        ] },
+      { num: 77, answer: "B", qEn: "Who most likely is the speaker?", qKo: "화자는 누구이겠는가?",
+        script: [
+          ["A", "A painter", "화가"],
+          ["B", "A hotel manager", "호텔 매니저"],
+          ["C", "A computer technician", "컴퓨터 기술자"],
+          ["D", "An event organizer", "행사 기획자"]
+        ] },
+      { num: 78, answer: "A", qEn: "What does the speaker want to buy?", qKo: "화자는 무엇을 사고 싶어 하는가?",
+        script: [
+          ["A", "Artwork", "미술품"],
+          ["B", "Furniture", "가구"],
+          ["C", "Snacks", "간식"],
+          ["D", "Tools", "공구"]
+        ] },
+      { num: 79, answer: "B", qEn: "What does the speaker mean when she says, \"My shift ends at four o'clock\"?", qKo: "화자가 \"제 근무는 4시에 끝나요\"라고 말한 의도는?",
+        script: [
+          ["A", "She does not have time for a task.", "어떤 일을 할 시간이 없다."],
+          ["B", "She would like to meet today.", "오늘 만나고 싶어 한다."],
+          ["C", "She would like to work an extra shift.", "추가 근무를 하고 싶어 한다."],
+          ["D", "She thinks a schedule is wrong.", "일정이 잘못됐다고 생각한다."]
+        ] },
+      { num: 80, answer: "D", qEn: "What is being advertised?", qKo: "무엇이 광고되고 있는가?",
+        script: [
+          ["A", "A concert series", "콘서트 시리즈"],
+          ["B", "A science museum", "과학 박물관"],
+          ["C", "A pet store", "반려동물 가게"],
+          ["D", "A monthly publication", "월간 간행물"]
+        ] },
+      { num: 81, answer: "C", qEn: "What will new customers receive for a limited time?", qKo: "신규 고객은 한정된 기간 동안 무엇을 받게 되는가?",
+        script: [
+          ["A", "Free food samples", "무료 시식품"],
+          ["B", "Invitations to lectures", "강연 초대장"],
+          ["C", "Entry tickets to parks", "공원 입장권"],
+          ["D", "Souvenir T-shirts", "기념 티셔츠"]
+        ] },
+      { num: 82, answer: "A", qEn: "What are listeners asked to do on a Web site?", qKo: "청자들은 웹사이트에서 무엇을 하라고 요청받는가?",
+        script: [
+          ["A", "Use a promotional code", "프로모션 코드 사용하기"],
+          ["B", "Look at some photos", "사진 보기"],
+          ["C", "Join a mailing list", "메일링 리스트 가입하기"],
+          ["D", "Enter a contest", "대회 참가하기"]
+        ] },
+      { num: 83, answer: "D", qEn: "What type of business does the speaker work for?", qKo: "화자는 어떤 종류의 업체에서 일하는가?",
+        script: [
+          ["A", "A moving company", "이삿짐 회사"],
+          ["B", "A landscaping service", "조경 업체"],
+          ["C", "A manufacturing firm", "제조 회사"],
+          ["D", "A food supplier", "식자재 공급업체"]
+        ] },
+      { num: 84, answer: "B", qEn: "What problem does the speaker mention?", qKo: "화자는 어떤 문제를 언급하는가?",
+        script: [
+          ["A", "A price list contained an error.", "가격표에 오류가 있었다."],
+          ["B", "A payment could not be processed.", "결제가 처리되지 못했다."],
+          ["C", "A business is short-staffed.", "업체에 인력이 부족하다."],
+          ["D", "A product had a defect.", "제품에 결함이 있었다."]
+        ] },
+      { num: 85, answer: "C", qEn: "What does the speaker say about tomorrow's delivery?", qKo: "화자는 내일 배송에 대해 뭐라고 말하는가?",
+        script: [
+          ["A", "It will contain substitute items.", "대체 상품이 포함될 것이다."],
+          ["B", "It can go to a different location.", "다른 장소로 배송될 수 있다."],
+          ["C", "It will arrive as scheduled.", "예정대로 도착할 것이다."],
+          ["D", "It may be postponed.", "연기될 수도 있다."]
+        ] },
+      { num: 86, answer: "B", qEn: "What type of construction project is the speaker discussing?", qKo: "화자는 어떤 종류의 건설 프로젝트를 논의하고 있는가?",
+        script: [
+          ["A", "Building a shopping mall", "쇼핑몰 건설"],
+          ["B", "Expanding a public transportation system", "대중교통 시스템 확장"],
+          ["C", "Renovating a local history museum", "지역 역사박물관 개조"],
+          ["D", "Adding on to a city hospital", "시립병원 증축"]
+        ] },
+      { num: 87, answer: "C", qEn: "Why does the speaker say, \"the proposal hasn't been approved yet\"?", qKo: "화자가 \"그 제안은 아직 승인되지 않았습니다\"라고 말한 이유는?",
+        script: [
+          ["A", "To complain about a delay", "지연에 대해 불평하려고"],
+          ["B", "To urge an immediate response", "즉각적인 대응을 촉구하려고"],
+          ["C", "To provide reassurance", "안심시키려고"],
+          ["D", "To justify a decision", "결정을 정당화하려고"]
+        ] },
+      { num: 88, answer: "A", qEn: "What will be broadcast later?", qKo: "나중에 무엇이 방송될 것인가?",
+        script: [
+          ["A", "An interview", "인터뷰"],
+          ["B", "A debate", "토론"],
+          ["C", "A sports event", "스포츠 경기"],
+          ["D", "A concert", "콘서트"]
+        ] },
+      { num: 89, answer: "B", qEn: "Where do the listeners work?", qKo: "청자들은 어디에서 일하는가?",
+        script: [
+          ["A", "At a technology company", "기술 회사"],
+          ["B", "At a medical clinic", "병원(클리닉)"],
+          ["C", "At an accounting firm", "회계 법인"],
+          ["D", "At a manufacturing plant", "제조 공장"]
+        ] },
+      { num: 90, answer: "D", qEn: "What does the speaker imply when he says, \"it's not software you're familiar with\"?", qKo: "화자가 \"여러분에게 익숙한 소프트웨어가 아닙니다\"라고 말할 때 암시하는 것은?",
+        script: [
+          ["A", "A company announcement was incorrect.", "회사 공지가 잘못되었다."],
+          ["B", "A project proposal will not work.", "프로젝트 제안이 통하지 않을 것이다."],
+          ["C", "Some software is still being developed.", "소프트웨어가 아직 개발 중이다."],
+          ["D", "Some training will be necessary.", "교육이 필요할 것이다."]
+        ] },
+      { num: 91, answer: "A", qEn: "What will the listeners most likely do next?", qKo: "청자들은 다음에 무엇을 하겠는가?",
+        script: [
+          ["A", "Indicate their availability", "가능한 시간 표시하기"],
+          ["B", "Call their managers", "매니저에게 전화하기"],
+          ["C", "Analyze some data", "데이터 분석하기"],
+          ["D", "Confirm some appointments", "예약 확인하기"]
+        ] },
+      { num: 92, answer: "C", qEn: "What is the purpose of the talk?", qKo: "담화의 목적은 무엇인가?",
+        script: [
+          ["A", "To introduce a guest speaker", "초청 연사를 소개하려고"],
+          ["B", "To provide a tour schedule", "투어 일정을 안내하려고"],
+          ["C", "To promote a new exhibit", "새 전시를 홍보하려고"],
+          ["D", "To explain a museum's history", "박물관의 역사를 설명하려고"]
+        ] },
+      { num: 93, answer: "B", qEn: "What does the speaker say about the gift shop?", qKo: "화자는 기념품점에 대해 뭐라고 말하는가?",
+        script: [
+          ["A", "It will be closing for renovations.", "보수를 위해 문을 닫을 것이다."],
+          ["B", "It will be selling special merchandise.", "특별 상품을 판매할 것이다."],
+          ["C", "It has free maps.", "무료 지도가 있다."],
+          ["D", "It is offering a discount today.", "오늘 할인을 제공한다."]
+        ] },
+      { num: 94, answer: "B", qEn: "What does the speaker encourage the listeners to do?", qKo: "화자는 청자들에게 무엇을 하라고 권하는가?",
+        script: [
+          ["A", "Volunteer at the museum", "박물관에서 자원봉사하기"],
+          ["B", "Purchase advance tickets", "표 미리 구매하기"],
+          ["C", "Register for an annual membership", "연간 회원권 등록하기"],
+          ["D", "Meet some visiting artists", "방문 아티스트 만나기"]
+        ] },
+      { num: 95, answer: "B", qEn: "Who most likely are the listeners?", qKo: "청자들은 누구이겠는가?",
+        script: [
+          ["A", "Real estate agents", "부동산 중개인"],
+          ["B", "Construction workers", "건설 노동자"],
+          ["C", "Architects", "건축가"],
+          ["D", "Salespeople", "판매원"]
+        ] },
+      { num: 96, answer: "D", qEn: "What does the speaker say the listeners can do tomorrow?", qKo: "화자는 청자들이 내일 무엇을 할 수 있다고 말하는가?",
+        script: [
+          ["A", "Get their paychecks", "급여 받기"],
+          ["B", "Attend a training session", "교육 참석하기"],
+          ["C", "Tour a building", "건물 견학하기"],
+          ["D", "Take the day off", "하루 쉬기"]
+        ] },
+      { num: 97, answer: "C", qEn: "Look at the graphic. Which type of flooring does the speaker refer to?", qKo: "시각 자료를 보시오. 화자는 어떤 종류의 바닥재를 언급하는가?",
+        script: [
+          ["A", "Carpeting", "카펫 ($2.50)"],
+          ["B", "Finished wood", "마감 목재 ($6.00)"],
+          ["C", "Tile", "타일 ($8.50 — 가장 비쌈)"],
+          ["D", "Vinyl", "비닐 ($3.00)"]
+        ] },
+      { num: 98, answer: "B", qEn: "What type of product does the business sell?", qKo: "이 업체는 어떤 종류의 제품을 판매하는가?",
+        script: [
+          ["A", "Clothing", "의류"],
+          ["B", "Footwear", "신발"],
+          ["C", "Appliances", "가전제품"],
+          ["D", "Software", "소프트웨어"]
+        ] },
+      { num: 99, answer: "C", qEn: "Look at the graphic. In what season did the business relocate?", qKo: "시각 자료를 보시오. 업체는 어느 계절에 이전했는가?",
+        script: [
+          ["A", "Spring", "봄"],
+          ["B", "Summer", "여름"],
+          ["C", "Fall", "가을 (연중 최저 매출 분기)"],
+          ["D", "Winter", "겨울"]
+        ] },
+      { num: 100, answer: "C", qEn: "What did the business do after it relocated?", qKo: "업체는 이전 후 무엇을 했는가?",
+        script: [
+          ["A", "It expanded its inventory.", "재고를 확대했다."],
+          ["B", "It hired additional staff.", "직원을 추가로 고용했다."],
+          ["C", "It placed some advertisements.", "광고를 냈다."],
+          ["D", "It organized an inauguration event.", "개업 행사를 열었다."]
+        ] }
+    ].map(q => ({ ...q, img: null, clip: null }))
+  }
+};
+
+const CHOICES = ["A", "B", "C", "D"];
+let currentPart = Object.keys(PARTS)[0];
+let userAnswers = {};   // { 문제번호: "A" }
+let checked = false;
+
+const tabsEl = document.getElementById("tabs");
+const questionsEl = document.getElementById("questions");
+const audioBox = document.getElementById("audioBox");
+const audioPlayer = document.getElementById("audioPlayer");
+const checkBtn = document.getElementById("checkBtn");
+const retryBtn = document.getElementById("retryBtn");
+const scoreBox = document.getElementById("scoreBox");
+
+function renderTabs() {
+  tabsEl.innerHTML = "";
+  const allParts = ["Part 1", "Part 2", "Part 3-1", "Part 3-2", "Part 3-3", "Part 4-1", "Part 4-2", "Part 4-3", "Part 4-4", "U2 명사", "Part 7"];
+  allParts.forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (name === currentPart ? " active" : "") + (PARTS[name] ? "" : " disabled");
+    btn.textContent = name;
+    if (PARTS[name]) {
+      btn.onclick = () => { currentPart = name; resetState(); renderAll(); };
+    }
+    tabsEl.appendChild(btn);
+  });
+}
+
+function renderQuestions() {
+  const part = PARTS[currentPart];
+  questionsEl.innerHTML = "";
+
+  // 오디오
+  if (part.audio) {
+    audioBox.style.display = "";
+    audioPlayer.src = part.audio;
+  } else {
+    audioBox.style.display = "none";
+    audioPlayer.removeAttribute("src");
+  }
+
+  if (part.groups) {
+    part.groups.forEach((g, gi) => {
+      questionsEl.appendChild(makeGroupCard(g, gi, part));
+      part.questions
+        .filter(q => q.num >= g.nums[0] && q.num <= g.nums[1])
+        .forEach(q => questionsEl.appendChild(makeQuestionCard(q, part)));
+    });
+  } else {
+    part.questions.forEach(q => questionsEl.appendChild(makeQuestionCard(q, part)));
+  }
+}
+
+function makeGroupCard(g, gi, part) {
+  const word = (part && part.groupWord) || "대화";
+  const card = document.createElement("div");
+  card.className = "question-card group-card";
+
+  const title = document.createElement("div");
+  title.className = "q-title";
+  title.innerHTML = '<span class="q-num">🎧</span> ' + g.nums[0] + "~" + g.nums[1] + "번 " + word + " 듣기";
+  card.appendChild(title);
+
+  if (g.img) {
+    const img = document.createElement("img");
+    img.className = "q-img";
+    img.src = g.img;
+    img.alt = g.nums[0] + "~" + g.nums[1] + "번 시각 자료";
+    card.appendChild(img);
+  }
+
+  const clip = document.createElement("audio");
+  clip.controls = true;
+  clip.preload = "none";
+  clip.src = g.clip;
+  clip.className = "q-clip";
+  clip.onplay = () => {
+    document.querySelectorAll("audio").forEach(a => { if (a !== clip) a.pause(); });
+  };
+  card.appendChild(clip);
+
+  if (g.conv) {
+    const toggle = document.createElement("button");
+    toggle.className = "explain-toggle";
+    toggle.textContent = "📖 " + word + " 스크립트 보기";
+    const box = document.createElement("div");
+    box.className = "explain";
+    g.conv.forEach(([en, ko]) => {
+      const line = document.createElement("div");
+      line.className = "script-line";
+      line.innerHTML = '<div class="en">' + en + '</div><div class="ko">' + ko + '</div>';
+      box.appendChild(line);
+    });
+    toggle.onclick = () => {
+      const open = box.classList.toggle("show");
+      toggle.textContent = open ? "📖 " + word + " 스크립트 닫기" : "📖 " + word + " 스크립트 보기";
+    };
+    card.appendChild(toggle);
+    card.appendChild(box);
+  }
+  return card;
+}
+
+function makeQuestionCard(q, part) {
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.id = "q-" + q.num;
+
+    const title = document.createElement("div");
+    title.className = "q-title";
+    title.innerHTML = '<span class="q-num">' + q.num + '</span> ' + q.num + '번 문제';
+    card.appendChild(title);
+
+    if (q.img) {
+      const img = document.createElement("img");
+      img.className = "q-img";
+      img.src = q.img;
+      img.alt = q.num + "번 문제 이미지";
+      card.appendChild(img);
+    }
+
+    if (q.clip) {
+      const clip = document.createElement("audio");
+      clip.controls = true;
+      clip.preload = "none";
+      clip.src = q.clip;
+      clip.className = "q-clip";
+      clip.onplay = () => {
+        // 다른 음원 자동 정지
+        document.querySelectorAll("audio").forEach(a => { if (a !== clip) a.pause(); });
+      };
+      card.appendChild(clip);
+    }
+
+    // 인쇄형 문제 (Part 3 이후): 질문 + 선택지 텍스트 표시
+    if (part.printed && q.qEn) {
+      const pt = document.createElement("div");
+      pt.className = "q-print";
+      pt.innerHTML = '<div class="pq">' + q.qEn + '</div>' +
+        q.script.map(([l, en]) => '<div class="pc">(' + l + ') ' + en + '</div>').join('');
+      card.appendChild(pt);
+    }
+
+    const choices = document.createElement("div");
+    choices.className = "choices";
+    (part.choices || CHOICES).forEach(c => {
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.textContent = c;
+      b.dataset.choice = c;
+      b.onclick = () => selectChoice(q.num, c);
+      choices.appendChild(b);
+    });
+    card.appendChild(choices);
+
+    const mark = document.createElement("div");
+    mark.className = "result-mark";
+    mark.id = "mark-" + q.num;
+    card.appendChild(mark);
+
+    if (q.script) {
+      const toggle = document.createElement("button");
+      toggle.className = "explain-toggle";
+      toggle.id = "toggle-" + q.num;
+      toggle.textContent = "📖 해설 보기";
+      const box = document.createElement("div");
+      box.className = "explain";
+      box.id = "explain-" + q.num;
+      if (q.qEn) {
+        const qline = document.createElement("div");
+        qline.className = "script-line q-line";
+        qline.innerHTML = '<div class="en"><span class="letter">Q.</span>' + q.qEn + '</div>' +
+                          '<div class="ko">' + q.qKo + '</div>';
+        box.appendChild(qline);
+      }
+      q.script.forEach(([letter, en, ko]) => {
+        const line = document.createElement("div");
+        line.className = "script-line" + (letter === q.answer ? " answer-line" : "");
+        line.innerHTML =
+          '<div class="en"><span class="letter">' + letter + '.</span>' + en +
+          (letter === q.answer ? ' ✅' : '') + '</div>' +
+          '<div class="ko">' + ko + '</div>';
+        box.appendChild(line);
+      });
+      toggle.onclick = () => {
+        const open = box.classList.toggle("show");
+        toggle.textContent = open ? "📖 해설 닫기" : "📖 해설 보기";
+      };
+      card.appendChild(toggle);
+      card.appendChild(box);
+    }
+
+    return card;
+}
+
+function selectChoice(num, choice) {
+  if (checked) return;
+  userAnswers[num] = choice;
+  const card = document.getElementById("q-" + num);
+  card.querySelectorAll(".choice").forEach(b => {
+    b.classList.toggle("selected", b.dataset.choice === choice);
+  });
+  updateCheckBtn();
+}
+
+function updateCheckBtn() {
+  const total = PARTS[currentPart].questions.length;
+  const done = Object.keys(userAnswers).length;
+  checkBtn.disabled = done < total;
+  checkBtn.textContent = done < total
+    ? "정답 확인 (" + done + "/" + total + ")"
+    : "정답 확인";
+}
+
+function checkAnswers() {
+  if (checked) return;
+  checked = true;
+  const part = PARTS[currentPart];
+  let correct = 0;
+
+  part.questions.forEach(q => {
+    const my = userAnswers[q.num];
+    const card = document.getElementById("q-" + q.num);
+    const mark = document.getElementById("mark-" + q.num);
+
+    card.querySelectorAll(".choice").forEach(b => {
+      b.classList.remove("selected");
+      if (b.dataset.choice === q.answer) b.classList.add("correct");
+      else if (b.dataset.choice === my) b.classList.add("wrong");
+    });
+
+    if (my === q.answer) {
+      correct++;
+      mark.textContent = "⭕ 정답!";
+      mark.className = "result-mark ok";
+    } else {
+      mark.textContent = "❌ 오답 (정답: " + q.answer + ")";
+      mark.className = "result-mark no";
+    }
+
+    // 채점 후 해설 버튼 표시 (오답이면 자동으로 펼침)
+    const toggle = document.getElementById("toggle-" + q.num);
+    if (toggle) {
+      toggle.classList.add("show");
+      if (my !== q.answer) {
+        document.getElementById("explain-" + q.num).classList.add("show");
+        toggle.textContent = "📖 해설 닫기";
+      }
+    }
+  });
+
+  // 대화 스크립트 등 모든 해설 버튼 표시
+  document.querySelectorAll(".explain-toggle").forEach(t => t.classList.add("show"));
+
+  const total = part.questions.length;
+  scoreBox.style.display = "";
+  const wrong = total - correct;
+  document.getElementById("scoreText").textContent = total + "문제 중 " + wrong + "문제 오답";
+  document.getElementById("scoreSub").textContent =
+    currentPart + " · 맞은 개수 " + correct + "개 · 정답률 " + Math.round(correct / total * 100) + "%";
+
+  checkBtn.style.display = "none";
+  retryBtn.style.display = "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetState() {
+  userAnswers = {};
+  checked = false;
+  scoreBox.style.display = "none";
+  checkBtn.style.display = "";
+  retryBtn.style.display = "none";
+  updateCheckBtn();
+}
+
+function renderAll() {
+  renderTabs();
+  renderQuestions();
+  updateCheckBtn();
+}
+
+checkBtn.onclick = checkAnswers;
+retryBtn.onclick = () => { resetState(); renderQuestions(); };
+
+renderAll();
+</script>
+</body>
+</html>
